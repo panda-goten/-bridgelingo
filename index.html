@@ -2,57 +2,57 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BridgeLingo Trial</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BridgeLingo v0.2</title>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f7f3ee;margin:0;padding:16px}
-input{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;font-size:16px}
-.card{background:#fff;border-radius:16px;padding:14px;margin:12px 0;border:1px solid #ddd}
-.title{font-size:22px;font-weight:bold;cursor:pointer}
-.detail{display:none;margin-top:12px;border-top:1px solid #eee;padding-top:12px}
-.small{color:#666;font-size:14px}
+:root{--bg:#f7f3ee;--card:#fff;--text:#27231f;--muted:#776f67;--line:#ded6ce;--accent:#8b5e3c;--soft:#f1e7dd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:10;padding:max(18px,env(safe-area-inset-top)) 16px 14px;background:#f7f3eef2;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:12px}h1{margin:0;font-size:28px}.sub,.count{color:var(--muted);font-size:13px}
+input{width:100%;margin-top:14px;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
+.tools{display:flex;gap:8px;overflow:auto;margin-top:10px}button{border:0;border-radius:999px;padding:9px 13px;background:var(--soft);font-size:14px;white-space:nowrap}
+main{max-width:760px;margin:auto;padding:16px 14px 40px}.hint{font-size:12px;color:var(--muted);margin:0 2px 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px #3c2a1c14}
+.summary{width:100%;padding:17px 16px;text-align:left;background:transparent;border-radius:0}.top{display:flex;justify-content:space-between;gap:12px}.ja{font-size:22px;font-weight:700}.arrow{color:var(--muted);font-size:18px;transition:.2s}.card.open .arrow{transform:rotate(180deg)}
+.lang{display:grid;grid-template-columns:34px 1fr;gap:7px;margin-top:7px;line-height:1.45}.lab{color:var(--muted);font-size:12px;padding-top:2px}.py{margin-left:41px;color:var(--muted);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.chip{padding:5px 8px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:12px}
+.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fffdfa}.card.open .detail{display:block}.ttl{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.09em;margin-bottom:9px}
+.ex{margin:8px 0;padding-left:10px;border-left:3px solid var(--soft);line-height:1.55}.meta{margin-top:15px;color:var(--muted);font-size:13px;line-height:1.6}.empty{display:none;text-align:center;color:var(--muted);padding:55px 10px}
 </style>
 </head>
 <body>
-<h2>BridgeLingo 試作2</h2>
-<input id="q" placeholder="検索">
-
-<div id="list"></div>
-
+<header>
+<div class="head"><div><h1>BridgeLingo</h1><div class="sub">語学図鑑 v0.2</div></div><div id="count" class="count"></div></div>
+<input id="q" type="search" placeholder="日本語・英語・中国語・拼音・アイスランド語で検索">
+<div class="tools"><button id="openAll">すべて開く</button><button id="closeAll">すべて閉じる</button><button id="clear">検索を消す</button></div>
+</header>
+<main><div class="hint">カードをタップすると、4言語の例文とタグが開きます。</div><div id="list"></div><div id="empty" class="empty">該当する表現がありません。</div></main>
 <script>
-const data=[
-{ja:"なるほど。",en:"I see.",zh:"原来是这样。",py:"Yuánlái shì zhèyàng.",is:"Ég skil.",ex:"なるほど、そういうことか。"},
-{ja:"本当に？",en:"Really?",zh:"真的吗？",py:"Zhēn de ma?",is:"Í alvöru?",ex:"本当にそうなの？"},
-{ja:"もちろん。",en:"Of course.",zh:"当然可以。",py:"Dāngrán kěyǐ.",is:"Auðvitað.",ex:"もちろん手伝うよ。"},
-{ja:"ありがとう。",en:"Thank you.",zh:"谢谢。",py:"Xièxie.",is:"Takk.",ex:"ありがとうございます。"},
-{ja:"頑張って！",en:"Good luck!",zh:"加油！",py:"Jiāyóu!",is:"Gangi þér vel!",ex:"頑張って！応援してる。"}
-];
-
-function render(){
- const q=document.getElementById("q").value.toLowerCase();
- const list=document.getElementById("list");
- list.innerHTML="";
- data.filter(x=>JSON.stringify(x).toLowerCase().includes(q)).forEach(x=>{
-   const card=document.createElement("div");
-   card.className="card";
-   card.innerHTML=`
-      <div class="title">${x.ja}</div>
-      <div>🇬🇧 ${x.en}</div>
-      <div>🇨🇳 ${x.zh}</div>
-      <div class="small">${x.py}</div>
-      <div>🇮🇸 ${x.is}</div>
-      <div class="detail">
-        <b>例文</b><br>${x.ex}
-      </div>`;
-   const title=card.querySelector(".title");
-   const detail=card.querySelector(".detail");
-   title.addEventListener("click",()=>{
-      detail.style.display=detail.style.display==="block"?"none":"block";
-   });
-   list.appendChild(card);
- });
+var DATA=[{"id": "BL00021", "ja": "なるほど。", "en": "I see.", "zh": "原来是这样。", "py": "Yuánlái shì zhèyàng.", "is": "Ég skil.", "cat": "日常会話", "tags": ["リアクション", "理解"], "ex": ["なるほど、そういうことだったんですね。", "Oh, I see. That’s what you mean.", "原来是这样啊。", "Yuánlái shì zhèyàng a.", "Ég skil hvað þú meinar."]}, {"id": "BL00022", "ja": "本当に？", "en": "Really?", "zh": "真的吗？", "py": "Zhēn de ma?", "is": "Í alvöru?", "cat": "日常会話", "tags": ["リアクション", "確認"], "ex": ["本当にそうなの？", "Really? Are you sure?", "真的吗？你确定吗？", "Zhēn de ma? Nǐ quèdìng ma?", "Í alvöru? Ertu viss?"]}, {"id": "BL00023", "ja": "もちろん。", "en": "Of course.", "zh": "当然可以。", "py": "Dāngrán kěyǐ.", "is": "Auðvitað.", "cat": "日常会話", "tags": ["返事", "同意"], "ex": ["もちろん手伝うよ。", "Of course I’ll help.", "我当然会帮你。", "Wǒ dāngrán huì bāng nǐ.", "Auðvitað hjálpa ég þér."]}, {"id": "BL00032", "ja": "ありがとう。", "en": "Thank you.", "zh": "谢谢。", "py": "Xièxie.", "is": "Takk.", "cat": "あいさつ", "tags": ["感謝", "基本表現"], "ex": ["手伝ってくれてありがとう。", "Thank you for helping me.", "谢谢你帮我。", "Xièxie nǐ bāng wǒ.", "Takk fyrir að hjálpa mér."]}, {"id": "BL00036", "ja": "頑張って！", "en": "Good luck!", "zh": "加油！", "py": "Jiāyóu!", "is": "Gangi þér vel!", "cat": "日常会話", "tags": ["応援", "励まし"], "ex": ["明日の試験、頑張って！", "Good luck on your test tomorrow!", "明天的考试加油！", "Míngtiān de kǎoshì jiāyóu!", "Gangi þér vel í prófinu á morgun!"]}];
+var q=document.getElementById("q"),list=document.getElementById("list"),count=document.getElementById("count"),empty=document.getElementById("empty");
+function esc(s){return String(s).replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
+function norm(s){return String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"")}
+function searchable(x){return norm([x.id,x.ja,x.en,x.zh,x.py,x.is,x.cat,x.tags.join(" "),x.ex.join(" ")].join(" "))}
+function makeCard(x){
+ var a=document.createElement("article");a.className="card";
+ a.innerHTML='<button class="summary" type="button"><div class="top"><div class="ja">'+esc(x.ja)+'</div><div class="arrow">⌄</div></div>'+
+ '<div class="lang"><div class="lab">EN</div><div>'+esc(x.en)+'</div></div>'+
+ '<div class="lang"><div class="lab">中文</div><div>'+esc(x.zh)+'</div></div><div class="py">'+esc(x.py)+'</div>'+
+ '<div class="lang"><div class="lab">ÍS</div><div>'+esc(x.is)+'</div></div>'+
+ '<div class="chips"><span class="chip">'+esc(x.cat)+'</span>'+x.tags.map(function(t){return '<span class="chip">#'+esc(t)+'</span>'}).join("")+'</div></button>'+
+ '<div class="detail"><div class="ttl">EXAMPLES</div>'+
+ '<div class="ex"><b>日</b>　'+esc(x.ex[0])+'</div><div class="ex"><b>英</b>　'+esc(x.ex[1])+'</div>'+
+ '<div class="ex"><b>中</b>　'+esc(x.ex[2])+'<br><span class="py" style="margin:0">'+esc(x.ex[3])+'</span></div>'+
+ '<div class="ex"><b>氷</b>　'+esc(x.ex[4])+'</div>'+
+ '<div class="meta">カテゴリ：'+esc(x.cat)+'<br>タグ：'+esc(x.tags.join("・"))+'<br>Concept ID：'+esc(x.id)+'</div></div>';
+ a.querySelector(".summary").onclick=function(){a.classList.toggle("open")};
+ return a
 }
-document.getElementById("q").addEventListener("input",render);
+function render(){var z=norm(q.value.trim()),arr=DATA.filter(function(x){return !z||searchable(x).indexOf(z)!==-1});list.innerHTML="";arr.forEach(function(x){list.appendChild(makeCard(x))});count.textContent=arr.length+"件";empty.style.display=arr.length?"none":"block"}
+q.oninput=render;
+document.getElementById("openAll").onclick=function(){document.querySelectorAll(".card").forEach(function(c){c.classList.add("open")})};
+document.getElementById("closeAll").onclick=function(){document.querySelectorAll(".card").forEach(function(c){c.classList.remove("open")})};
+document.getElementById("clear").onclick=function(){q.value="";render();q.focus()};
 render();
 </script>
 </body>
