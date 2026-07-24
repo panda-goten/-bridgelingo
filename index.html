@@ -6,18 +6,18 @@
 <meta name="theme-color" content="#f7f3ee">
 <title>BridgeLingo v0.6</title>
 <style>
-:root{--bg:#f7f3ee;--card:#fff;--text:#29241f;--muted:#776f67;--line:#ded6ce;--accent:#8b5e3c;--soft:#f1e7dd;--blue:#1688e8}
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2}
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
-header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3eef3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .head{display:flex;justify-content:space-between;align-items:end;gap:10px} h1{margin:0;font-size:27px} .sub,.count,.hint,.note,.picker-label{color:var(--muted);font-size:12px}
 .nav{display:flex;gap:8px;margin-top:10px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px}.nav a.active{background:var(--accent);color:#fff}.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
 .picker,.tools{display:flex;gap:7px;overflow:auto;margin-top:8px;padding-bottom:1px} .picker-label{margin-top:10px}
 button,select{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);font-size:14px;white-space:nowrap;color:var(--text)} .lang-btn.on{background:var(--accent);color:#fff} select{border-radius:12px}
 main{max-width:760px;margin:auto;padding:14px 12px 40px} .hint{margin:0 2px 8px} .note{margin:0 2px 12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #3c2a1c14}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}
 .summary{width:100%;padding:16px;text-align:left;background:transparent;border-radius:0} .top{display:flex;justify-content:space-between;gap:10px} .ja{font-size:22px;font-weight:700;color:var(--blue)} .arrow{color:var(--muted)} .card.open .arrow{transform:rotate(180deg)}
 .preview{margin-top:9px} .preview-line,.lang{display:grid;grid-template-columns:62px 1fr;gap:7px;margin-top:6px;line-height:1.45} .lab{color:var(--muted);font-size:12px;padding-top:3px}
-.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fffdfa} .card.open .detail{display:block}
+.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fcf9ff} .card.open .detail{display:block}
 .group-title{margin-top:13px;color:var(--accent);font-size:11px;font-weight:700} .pron{margin-left:69px;color:var(--muted);font-size:14px;line-height:1.5}
 .zhuyin{font-family:"PingFang TC","Heiti TC","Noto Sans Bopomofo","Noto Sans TC",sans-serif;font-size:16px;letter-spacing:.08em}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px} .chip{padding:5px 8px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:12px}
@@ -26,7 +26,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 40px} .hint{margin:0 2px 8px}
 </head>
 <body>
 <header>
-<div class="head"><div><h1>BridgeLingo</h1><div class="sub">語学図鑑 v0.7・クイズ入口付き</div></div><div id="count" class="count"></div></div>
+<div class="head"><div><h1>BridgeLingo</h1><div class="sub">語学図鑑 v0.8・ラベンダー</div></div><div id="count" class="count"></div></div>
 <div class="nav"><a class="active" href="index.html">語学図鑑</a><a href="quiz.html">クイズ</a></div>
 <input id="q" class="search" type="search" placeholder="言語・発音表記・カテゴリ・タグから検索">
 <div class="picker-label">表示する言語</div>
