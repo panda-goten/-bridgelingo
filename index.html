@@ -10,7 +10,7 @@
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
 header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3eef3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .head{display:flex;justify-content:space-between;align-items:end;gap:10px} h1{margin:0;font-size:27px} .sub,.count,.hint,.note,.picker-label{color:var(--muted);font-size:12px}
-.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
+.nav{display:flex;gap:8px;margin-top:10px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px}.nav a.active{background:var(--accent);color:#fff}.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
 .picker,.tools{display:flex;gap:7px;overflow:auto;margin-top:8px;padding-bottom:1px} .picker-label{margin-top:10px}
 button,select{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);font-size:14px;white-space:nowrap;color:var(--text)} .lang-btn.on{background:var(--accent);color:#fff} select{border-radius:12px}
 main{max-width:760px;margin:auto;padding:14px 12px 40px} .hint{margin:0 2px 8px} .note{margin:0 2px 12px}
@@ -26,7 +26,8 @@ main{max-width:760px;margin:auto;padding:14px 12px 40px} .hint{margin:0 2px 8px}
 </head>
 <body>
 <header>
-<div class="head"><div><h1>BridgeLingo</h1><div class="sub">語学図鑑 v0.6・データ分離版</div></div><div id="count" class="count"></div></div>
+<div class="head"><div><h1>BridgeLingo</h1><div class="sub">語学図鑑 v0.7・クイズ入口付き</div></div><div id="count" class="count"></div></div>
+<div class="nav"><a class="active" href="index.html">語学図鑑</a><a href="quiz.html">クイズ</a></div>
 <input id="q" class="search" type="search" placeholder="言語・発音表記・カテゴリ・タグから検索">
 <div class="picker-label">表示する言語</div>
 <div class="picker">
