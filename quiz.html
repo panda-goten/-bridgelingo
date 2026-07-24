@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ee">
+<title>BridgeLingo Quiz v0.1</title>
+<style>
+:root{
+  --bg:#f7f3ee;--card:#fff;--text:#29241f;--muted:#776f67;
+  --line:#ded6ce;--accent:#8b5e3c;--soft:#f1e7dd;--blue:#1688e8;
+  --ok:#e7f4e8;--ng:#fbe8e5
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif
+}
+header{
+  position:sticky;top:0;z-index:20;
+  padding:max(16px,env(safe-area-inset-top)) 14px 12px;
+  background:#f7f3eef3;border-bottom:1px solid var(--line);
+  backdrop-filter:blur(12px)
+}
+.head{display:flex;justify-content:space-between;align-items:end;gap:10px}
+h1{margin:0;font-size:27px;line-height:1.1}
+.sub,.small{color:var(--muted);font-size:12px}
+nav{display:flex;gap:8px;margin-top:10px}
+nav a{
+  text-decoration:none;color:var(--text);background:var(--soft);
+  padding:8px 12px;border-radius:999px;font-size:13px
+}
+main{max-width:760px;margin:auto;padding:14px 12px 50px}
+.panel,.quiz-card,.result{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  box-shadow:0 8px 24px #3c2a1c14
+}
+.panel{padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted);font-weight:700}
+select,button{
+  font:inherit;border:0;border-radius:14px;padding:12px;
+  background:var(--soft);color:var(--text)
+}
+select{width:100%}
+.primary{
+  width:100%;margin-top:14px;background:var(--accent);color:#fff;
+  font-weight:700;font-size:16px
+}
+.note{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.55}
+.quiz-wrap{display:none}
+.progress{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:2px 2px 10px;color:var(--muted);font-size:13px
+}
+.quiz-card{padding:18px}
+.prompt-label{font-size:12px;color:var(--accent);font-weight:700;margin-bottom:10px}
+.source-block{
+  padding:13px 14px;border-radius:14px;background:#fffdfa;
+  border:1px solid var(--line);margin-bottom:10px
+}
+.source-name{font-size:11px;color:var(--muted);font-weight:700}
+.source-text{font-size:21px;font-weight:700;margin-top:4px;line-height:1.45}
+.source-pron{font-size:14px;color:var(--muted);margin-top:3px;line-height:1.45}
+.question{font-size:16px;font-weight:700;margin:18px 0 10px}
+.choices{display:grid;gap:10px}
+.choice{
+  text-align:left;background:#fff;border:1px solid var(--line);
+  border-radius:16px;padding:14px;font-size:17px;line-height:1.45
+}
+.choice:disabled{opacity:1}
+.choice.correct{background:var(--ok);border-color:#9ec7a2}
+.choice.wrong{background:var(--ng);border-color:#d9a49c}
+.feedback{min-height:52px;margin-top:14px;padding:12px 13px;border-radius:14px;background:var(--soft);display:none}
+.feedback strong{display:block;margin-bottom:4px}
+.answer-pron{font-size:13px;color:var(--muted);margin-top:4px}
+.next{display:none;width:100%;margin-top:12px;background:var(--accent);color:#fff;font-weight:700}
+.result{display:none;padding:24px;text-align:center}
+.score{font-size:44px;font-weight:800;color:var(--blue);margin:10px 0}
+.result-actions{display:grid;gap:10px;margin-top:18px}
+.result-actions button,.result-actions a{
+  display:block;text-decoration:none;text-align:center;border-radius:14px;
+  padding:12px;background:var(--soft);color:var(--text)
+}
+.result-actions .again{background:var(--accent);color:#fff}
+.error{
+  display:none;background:var(--ng);border:1px solid #d9a49c;
+  border-radius:14px;padding:12px;margin-bottom:12px
+}
+@media(max-width:540px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div>
+      <h1>BridgeLingo Quiz</h1>
+      <div class="sub">2言語 → 3言語目を四択　v0.1</div>
+    </div>
+  </div>
+  <nav>
+    <a href="index.html">語学図鑑へ</a>
+    <a href="quiz.html">クイズ</a>
+  </nav>
+</header>
+
+<main>
+  <div id="error" class="error">
+    data.jsを読み込めませんでした。index.html・quiz.html・data.jsを同じ場所に置いてください。
+  </div>
+
+  <section id="setup" class="panel">
+    <div class="grid">
+      <div class="field">
+        <label for="source1">表示する言語①</label>
+        <select id="source1"></select>
+      </div>
+      <div class="field">
+        <label for="source2">表示する言語②</label>
+        <select id="source2"></select>
+      </div>
+      <div class="field">
+        <label for="answerLang">答える言語</label>
+        <select id="answerLang"></select>
+      </div>
+      <div class="field">
+        <label for="questionCount">問題数</label>
+        <select id="questionCount">
+          <option value="5">5問</option>
+          <option value="10" selected>10問</option>
+          <option value="20">20問</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label for="category">カテゴリ</label>
+        <select id="category">
+          <option value="">すべてのカテゴリ</option>
+        </select>
+      </div>
+    </div>
+    <button id="start" class="primary">クイズを始める</button>
+    <div class="note">
+      正解の位置と問題順は毎回ランダムです。選択肢は同じ100語データから自動生成します。
+    </div>
+  </section>
+
+  <section id="quizWrap" class="quiz-wrap">
+    <div class="progress">
+      <span id="progressText">1 / 10</span>
+      <span id="scoreText">正解 0</span>
+    </div>
+
+    <div class="quiz-card">
+      <div class="prompt-label">この2つと同じ意味になる表現は？</div>
+
+      <div class="source-block">
+        <div id="sourceName1" class="source-name"></div>
+        <div id="sourceText1" class="source-text"></div>
+        <div id="sourcePron1" class="source-pron"></div>
+      </div>
+
+      <div class="source-block">
+        <div id="sourceName2" class="source-name"></div>
+        <div id="sourceText2" class="source-text"></div>
+        <div id="sourcePron2" class="source-pron"></div>
+      </div>
+
+      <div id="question" class="question"></div>
+      <div id="choices" class="choices"></div>
+
+      <div id="feedback" class="feedback"></div>
+      <button id="next" class="next">次の問題へ</button>
+    </div>
+  </section>
+
+  <section id="result" class="result">
+    <div class="small">RESULT</div>
+    <div id="finalScore" class="score"></div>
+    <div id="finalMessage"></div>
+    <div class="result-actions">
+      <button id="again" class="again">同じ設定でもう一度</button>
+      <button id="backSetup">設定を変える</button>
+      <a href="index.html">語学図鑑へ戻る</a>
+    </div>
+  </section>
+</main>
+
+<script src="data.js"></script>
+<script>
+const LANGS = {
+  ja:    {name:"日本語", text:"ja", pron:null},
+  en:    {name:"英語", text:"en", pron:null},
+  zh_cn: {name:"普通話", text:"zh_cn", pron:"pinyin"},
+  zh_tw: {name:"台湾華語", text:"zh_tw", pron:"zhuyin"},
+  nan:   {name:"台湾語", text:"nan", pron:"tailo"},
+  is:    {name:"アイスランド語", text:"is", pron:null}
+};
+
+const $ = id => document.getElementById(id);
+const source1 = $("source1");
+const source2 = $("source2");
+const answerLang = $("answerLang");
+const questionCount = $("questionCount");
+const category = $("category");
+
+let settings = null;
+let questions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+function shuffle(arr){
+  const copy = [...arr];
+  for(let i=copy.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+
+function addLanguageOptions(select){
+  Object.entries(LANGS).forEach(([key,lang])=>{
+    const opt=document.createElement("option");
+    opt.value=key;
+    opt.textContent=lang.name;
+    select.appendChild(opt);
+  });
+}
+
+function getText(item,key){
+  return item[LANGS[key].text] || "";
+}
+
+function getPron(item,key){
+  const field=LANGS[key].pron;
+  return field ? (item[field] || "") : "";
+}
+
+function init(){
+  if(typeof DATA==="undefined" || !Array.isArray(DATA)){
+    $("error").style.display="block";
+    $("setup").style.display="none";
+    return;
+  }
+
+  [source1,source2,answerLang].forEach(addLanguageOptions);
+  source1.value="ja";
+  source2.value="zh_cn";
+  answerLang.value="en";
+
+  [...new Set(DATA.map(x=>x.category))].forEach(cat=>{
+    const opt=document.createElement("option");
+    opt.value=cat; opt.textContent=cat;
+    category.appendChild(opt);
+  });
+
+  $("start").onclick=startQuiz;
+  $("next").onclick=nextQuestion;
+  $("again").onclick=()=>startQuiz(true);
+  $("backSetup").onclick=showSetup;
+}
+
+function validateSettings(){
+  const langs=[source1.value,source2.value,answerLang.value];
+  if(new Set(langs).size!==3){
+    alert("表示する2言語と、答える言語はすべて別々にしてください。");
+    return false;
+  }
+  return true;
+}
+
+function startQuiz(reuse=false){
+  if(!reuse && !validateSettings()) return;
+
+  if(!reuse){
+    settings={
+      source1:source1.value,
+      source2:source2.value,
+      answer:answerLang.value,
+      count:Number(questionCount.value),
+      category:category.value
+    };
+  }
+
+  let pool=DATA.filter(x=>!settings.category || x.category===settings.category);
+  pool=pool.filter(x=>getText(x,settings.source1)&&getText(x,settings.source2)&&getText(x,settings.answer));
+
+  if(pool.length<4){
+    alert("この設定では選択肢を作るための語彙が足りません。カテゴリを広げてください。");
+    return;
+  }
+
+  const count=Math.min(settings.count,pool.length);
+  questions=shuffle(pool).slice(0,count);
+  current=0; score=0; answered=false;
+
+  $("setup").style.display="none";
+  $("result").style.display="none";
+  $("quizWrap").style.display="block";
+  renderQuestion();
+}
+
+function renderSource(item,key,n){
+  $("sourceName"+n).textContent=LANGS[key].name;
+  $("sourceText"+n).textContent=getText(item,key);
+  const p=getPron(item,key);
+  $("sourcePron"+n).textContent=p;
+  $("sourcePron"+n).style.display=p?"block":"none";
+}
+
+function renderQuestion(){
+  answered=false;
+  const item=questions[current];
+  $("progressText").textContent=(current+1)+" / "+questions.length;
+  $("scoreText").textContent="正解 "+score;
+
+  renderSource(item,settings.source1,1);
+  renderSource(item,settings.source2,2);
+
+  $("question").textContent=LANGS[settings.answer].name+"はどれ？";
+  $("feedback").style.display="none";
+  $("feedback").innerHTML="";
+  $("next").style.display="none";
+
+  const wrongPool=DATA.filter(x=>x.id!==item.id && getText(x,settings.answer));
+  const wrongs=shuffle(wrongPool).slice(0,3);
+  const options=shuffle([item,...wrongs]);
+
+  const choices=$("choices");
+  choices.innerHTML="";
+  options.forEach(opt=>{
+    const btn=document.createElement("button");
+    btn.className="choice";
+    btn.textContent=getText(opt,settings.answer);
+    btn.dataset.id=opt.id;
+    btn.onclick=()=>choose(btn,opt,item);
+    choices.appendChild(btn);
+  });
+}
+
+function choose(button,selected,correct){
+  if(answered) return;
+  answered=true;
+
+  const isCorrect=selected.id===correct.id;
+  if(isCorrect) score++;
+
+  document.querySelectorAll(".choice").forEach(btn=>{
+    btn.disabled=true;
+    if(btn.dataset.id===correct.id) btn.classList.add("correct");
+    else if(btn===button) btn.classList.add("wrong");
+  });
+
+  const pron=getPron(correct,settings.answer);
+  $("feedback").style.display="block";
+  $("feedback").innerHTML=
+    "<strong>"+(isCorrect?"正解！🎉":"おしい！ 正解はこちら")+"</strong>"+
+    "<div>"+getText(correct,settings.answer)+"</div>"+
+    (pron?'<div class="answer-pron">'+pron+"</div>":"");
+
+  $("scoreText").textContent="正解 "+score;
+  $("next").textContent=current===questions.length-1?"結果を見る":"次の問題へ";
+  $("next").style.display="block";
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=questions.length){
+    showResult();
+  }else{
+    renderQuestion();
+  }
+}
+
+function showResult(){
+  $("quizWrap").style.display="none";
+  $("result").style.display="block";
+  $("finalScore").textContent=score+" / "+questions.length;
+
+  const rate=score/questions.length;
+  let msg="まずはここから！";
+  if(rate===1) msg="全問正解！すごい！！✨";
+  else if(rate>=0.8) msg="かなり身についてる！👏";
+  else if(rate>=0.6) msg="いい感じ！もう一周で定着しそう😊";
+  else if(rate>=0.4) msg="語学図鑑で確認して、また挑戦しよう。";
+  $("finalMessage").textContent=msg;
+}
+
+function showSetup(){
+  $("result").style.display="none";
+  $("quizWrap").style.display="none";
+  $("setup").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+init();
+</script>
+</body>
+</html>
