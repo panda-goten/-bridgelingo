@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ee">
-<title>BridgeLingo Quiz v0.4 Icelandic Audio</title>
+<title>BridgeLingo Quiz v0.4 Appendix</title>
 <style>
 :root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e7f4e8;--ng:#fbe8e5}
 *{box-sizing:border-box}
@@ -15,7 +15,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}.panel,.quiz-card,.resul
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted);font-weight:700}
 select,button{font:inherit;border:0;border-radius:14px;padding:12px;background:var(--soft);color:var(--text)}select{width:100%}.primary{width:100%;margin-top:14px;background:var(--accent);color:#fff;font-weight:700;font-size:16px}.note{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.55}
 .quiz-wrap{display:none}.progress{display:flex;justify-content:space-between;margin:2px 2px 10px;color:var(--muted);font-size:13px}.quiz-card{padding:18px}.prompt-label{font-size:12px;color:var(--accent);font-weight:700;margin-bottom:10px}
-.source-block{padding:13px 14px;border-radius:14px;background:#fcf9ff;border:1px solid var(--line);margin-bottom:10px}.source-name{font-size:11px;color:var(--muted);font-weight:700}.source-text{font-size:21px;font-weight:700;margin-top:4px;line-height:1.45}.source-pron{font-size:14px;color:var(--muted);margin-top:3px}.audio-line{display:flex;align-items:center;gap:8px}.speak-btn{padding:6px 9px;border-radius:999px;background:var(--soft);font-size:13px;line-height:1}
+.source-block{padding:13px 14px;border-radius:14px;background:#fcf9ff;border:1px solid var(--line);margin-bottom:10px}.source-name{font-size:11px;color:var(--muted);font-weight:700}.source-text{font-size:21px;font-weight:700;margin-top:4px;line-height:1.45}.source-pron{font-size:14px;color:var(--muted);margin-top:3px}
 .question{font-size:16px;font-weight:700;margin:18px 0 10px}.choices{display:grid;gap:10px}.choice{text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;font-size:17px;line-height:1.45}.choice.correct{background:var(--ok);border-color:#9ec7a2}.choice.wrong{background:var(--ng);border-color:#d9a49c}
 .feedback{display:none;margin-top:14px;padding:12px 13px;border-radius:14px;background:var(--soft)}.feedback strong{display:block;margin-bottom:4px}.answer-pron{font-size:13px;color:var(--muted);margin-top:4px}.next{display:none;width:100%;margin-top:12px;background:var(--accent);color:#fff;font-weight:700}
 .result{display:none;padding:24px;text-align:center}.score{font-size:44px;font-weight:800;color:var(--blue);margin:10px 0}.result-actions{display:grid;gap:10px;margin-top:18px}.result-actions button,.result-actions a{display:block;text-decoration:none;text-align:center;border-radius:14px;padding:12px;background:var(--soft);color:var(--text)}.result-actions .again{background:var(--accent);color:#fff}
@@ -26,8 +26,8 @@ select,button{font:inherit;border:0;border-radius:14px;padding:12px;background:v
 <body>
 <header>
 <h1>BridgeLingo Quiz</h1>
-<div class="sub">2言語 → 3言語目を四択　v0.4・アイスランド語音声</div>
-<div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="quiz.html">クイズ</a></div>
+<div class="sub">2言語 → 3言語目を四択　v0.4・付録付き</div>
+<div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div>
 </header>
 <main>
 <div id="error" class="error"></div>
@@ -91,19 +91,6 @@ function textOf(item,key){return item[LANGS[key].text]||""}
 function pronOf(item,key){var p=LANGS[key].pron;return p?(item[p]||""):""}
 function showError(message){el("error").textContent=message;el("error").style.display="block"}
 
-
-function speakIcelandic(text){
- if(!("speechSynthesis" in window)){alert("このブラウザは音声読み上げに対応していません。");return}
- window.speechSynthesis.cancel();
- var u=new SpeechSynthesisUtterance(text);u.lang="is-IS";u.rate=.88;
- var vs=window.speechSynthesis.getVoices();
- var v=vs.find(function(x){return /^is(-|_)/i.test(x.lang)})||vs.find(function(x){return /iceland/i.test(x.name)});
- if(v)u.voice=v;
- u.onerror=function(){alert("アイスランド語音声を再生できませんでした。端末にアイスランド語音声がない可能性があります。")};
- window.speechSynthesis.speak(u)
-}
-function audioButton(text){return '<button type="button" class="speak-btn" data-speak="'+String(text).replace(/"/g,"&quot;")+'">🔊</button>'}
-
 function init(){
  try{
    if(typeof DATA==="undefined" || !Array.isArray(DATA)){throw new Error("data.jsが読み込めませんでした。")}
@@ -115,7 +102,7 @@ function init(){
    el("start").addEventListener("click",function(){startQuiz(false)});
    el("next").addEventListener("click",nextQuestion);
    el("again").addEventListener("click",function(){startQuiz(true)});
-   el("backSetup").addEventListener("click",showSetup);document.addEventListener("click",function(e){var b=e.target.closest(".speak-btn");if(!b)return;e.preventDefault();e.stopPropagation();speakIcelandic(b.getAttribute("data-speak")||"")});
+   el("backSetup").addEventListener("click",showSetup);
  }catch(err){
    showError("初期化エラー：" + err.message);
  }
@@ -144,7 +131,7 @@ function startQuiz(reuse){
 
 function renderSource(item,key,n){
  el("sourceName"+n).textContent=LANGS[key].name;
- var tx=textOf(item,key);el("sourceText"+n).innerHTML=key==="is"?'<span class="audio-line"><span>'+tx+'</span>'+audioButton(tx)+'</span>':tx;
+ el("sourceText"+n).textContent=textOf(item,key);
  var p=pronOf(item,key);el("sourcePron"+n).textContent=p;el("sourcePron"+n).style.display=p?"block":"none"
 }
 
@@ -175,7 +162,7 @@ function choose(button,selected,correct){
  });
  var p=pronOf(correct,settings.answer);
  el("feedback").style.display="block";
- var ans=textOf(correct,settings.answer);el("feedback").innerHTML="<strong>"+(ok?"正解！🎉":"おしい！ 正解はこちら")+"</strong><div class=\"audio-line\"><span>"+ans+"</span>"+(settings.answer==="is"?audioButton(ans):"")+"</div>"+(p?'<div class="answer-pron">'+p+"</div>":"");
+ el("feedback").innerHTML="<strong>"+(ok?"正解！🎉":"おしい！ 正解はこちら")+"</strong><div>"+textOf(correct,settings.answer)+"</div>"+(p?'<div class="answer-pron">'+p+"</div>":"");
  el("scoreText").textContent="正解 "+score;
  el("next").textContent=current===questions.length-1?"結果を見る":"次の問題へ";
  el("next").style.display="block"
