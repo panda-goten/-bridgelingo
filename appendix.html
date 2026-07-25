@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3fb">
+<title>BridgeLingo 付録 v0.1</title>
+<style>
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--mark:#f4eff9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+h1{margin:0;font-size:27px}.sub,.intro,.note,.mini{color:var(--muted)}.sub{font-size:12px}.nav{display:flex;gap:8px;margin-top:10px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px}.nav a.active{background:var(--accent);color:#fff}
+main{max-width:760px;margin:auto;padding:16px 12px 50px}.intro{font-size:14px;line-height:1.75;margin:0 2px 14px}
+.toc{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin-bottom:14px}.toc a{flex:0 0 auto;text-decoration:none;color:var(--accent);background:var(--soft);padding:8px 11px;border-radius:999px;font-size:13px}
+.section{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}.section summary{list-style:none;cursor:pointer;padding:17px 18px;font-size:18px;font-weight:700;color:var(--blue);display:flex;justify-content:space-between;align-items:center}.section summary::-webkit-details-marker{display:none}.section summary::after{content:"⌄";color:var(--muted);transition:.2s}.section[open] summary::after{transform:rotate(180deg)}.content{padding:0 16px 18px;border-top:1px solid var(--line)}
+h2{font-size:16px;color:var(--accent);margin:18px 0 8px}.note{font-size:13px;line-height:1.65;margin:10px 0}.badge{display:inline-block;background:var(--soft);color:var(--accent);padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px}table{width:100%;border-collapse:collapse;min-width:480px;background:#fff}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px;line-height:1.45}th{background:var(--mark);color:var(--accent);font-size:12px;white-space:nowrap}tr:last-child td{border-bottom:0}.is{font-size:16px;font-weight:700}.jp{color:var(--muted);font-size:12px;margin-top:3px}.example{background:#fcf9ff;border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-top:8px;line-height:1.55}.example strong{color:var(--blue)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}.num-card{border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff}.num{font-size:12px;color:var(--muted)}.forms{font-size:16px;font-weight:700;margin-top:2px}.gender{font-size:11px;color:var(--accent);margin-top:4px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:8px 0 20px}@media(max-width:540px){.grid{grid-template-columns:1fr}.table-wrap table{min-width:420px}}
+</style>
+</head>
+<body>
+<header>
+<h1>BridgeLingo 付録</h1>
+<div class="sub">アイスランド語・基礎一覧 v0.1</div>
+<div class="nav"><a href="index.html">語学図鑑</a><a href="quiz.html">クイズ</a><a class="active" href="appendix.html">付録</a></div>
+</header>
+<main>
+<p class="intro">辞書の巻末付録のように、何度も見返したい基本事項をまとめたページです。まずは人称代名詞、動詞 <strong>vera</strong>、数詞を収録しています。</p>
+<nav class="toc"><a href="#pronouns">人称代名詞</a><a href="#vera">vera</a><a href="#numbers">数詞</a></nav>
+
+<details class="section" id="pronouns" open>
+<summary>人称代名詞〈主格〉</summary>
+<div class="content">
+<p class="note">まず文の主語として使う形です。アイスランド語では、三人称の単数・複数に性の区別があります。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>人称</th><th>単数</th><th>日本語</th><th>複数</th><th>日本語</th></tr></thead>
+<tbody>
+<tr><td>1人称</td><td><span class="is">ég</span></td><td>私</td><td><span class="is">við</span></td><td>私たち</td></tr>
+<tr><td>2人称</td><td><span class="is">þú</span></td><td>あなた</td><td><span class="is">þið</span></td><td>あなたたち</td></tr>
+<tr><td rowspan="3">3人称</td><td><span class="is">hann</span></td><td>彼／男性</td><td><span class="is">þeir</span></td><td>彼ら／男性複数</td></tr>
+<tr><td><span class="is">hún</span></td><td>彼女／女性</td><td><span class="is">þær</span></td><td>彼女ら／女性複数</td></tr>
+<tr><td><span class="is">það</span></td><td>それ／中性</td><td><span class="is">þau</span></td><td>それら／中性・混合グループ</td></tr>
+</tbody></table></div>
+<p class="note"><span class="badge">ポイント</span> <strong>þau</strong> は中性名詞の複数だけでなく、性が混ざったグループにも使われます。</p>
+</div></details>
+
+<details class="section" id="vera" open>
+<summary>vera〈〜である・いる〉現在形</summary>
+<div class="content">
+<p class="note"><strong>vera</strong> は英語の <em>be</em> に近い基本動詞です。不定形は <strong>að vera</strong>、ここでは直説法現在形をまとめています。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>主語</th><th>活用形</th><th>例</th><th>日本語</th></tr></thead>
+<tbody>
+<tr><td><span class="is">ég</span></td><td><span class="is">er</span></td><td>Ég er heima.</td><td>私は家にいます。</td></tr>
+<tr><td><span class="is">þú</span></td><td><span class="is">ert</span></td><td>Þú ert hér.</td><td>あなたはここにいます。</td></tr>
+<tr><td><span class="is">hann / hún / það</span></td><td><span class="is">er</span></td><td>Hún er kennari.</td><td>彼女は教師です。</td></tr>
+<tr><td><span class="is">við</span></td><td><span class="is">erum</span></td><td>Við erum tilbúin.</td><td>私たちは準備ができています。</td></tr>
+<tr><td><span class="is">þið</span></td><td><span class="is">eruð</span></td><td>Þið eruð í skólanum.</td><td>あなたたちは学校にいます。</td></tr>
+<tr><td><span class="is">þeir / þær / þau</span></td><td><span class="is">eru</span></td><td>Þau eru vinir.</td><td>彼ら／彼女らは友達です。</td></tr>
+</tbody></table></div>
+<div class="example"><strong>覚え方：</strong> er → ert → er ／ erum → eruð → eru</div>
+<p class="note">形容詞や名詞は、主語の性・数・格に合わせて形が変わることがあります。ここではまず <strong>vera</strong> 自体の活用に注目しましょう。</p>
+</div></details>
+
+<details class="section" id="numbers" open>
+<summary>数詞〈0〜10〉</summary>
+<div class="content">
+<p class="note">1〜4は、数える名詞の性と格に合わせて変化します。下は主格の男性・女性・中性の形です。単独で順に数えるときは一般に男性形を使います。</p>
+<div class="grid">
+<div class="num-card"><div class="num">0</div><div class="forms">núll</div></div>
+<div class="num-card"><div class="num">1</div><div class="forms">einn / ein / eitt</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
+<div class="num-card"><div class="num">2</div><div class="forms">tveir / tvær / tvö</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
+<div class="num-card"><div class="num">3</div><div class="forms">þrír / þrjár / þrjú</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
+<div class="num-card"><div class="num">4</div><div class="forms">fjórir / fjórar / fjögur</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
+<div class="num-card"><div class="num">5</div><div class="forms">fimm</div></div>
+<div class="num-card"><div class="num">6</div><div class="forms">sex</div></div>
+<div class="num-card"><div class="num">7</div><div class="forms">sjö</div></div>
+<div class="num-card"><div class="num">8</div><div class="forms">átta</div></div>
+<div class="num-card"><div class="num">9</div><div class="forms">níu</div></div>
+<div class="num-card"><div class="num">10</div><div class="forms">tíu</div></div>
+</div>
+<h2>1〜4の例</h2>
+<div class="example"><strong>einn maður</strong><div class="jp">一人の男性（maður＝男性名詞）</div></div>
+<div class="example"><strong>ein kona</strong><div class="jp">一人の女性（kona＝女性名詞）</div></div>
+<div class="example"><strong>eitt barn</strong><div class="jp">一人の子ども（barn＝中性名詞）</div></div>
+</div></details>
+
+<footer>BridgeLingo Appendix — 少しずつ増やしていく学習用付録</footer>
+</main>
+</body>
+</html>
