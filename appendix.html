@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3fb">
-<title>BridgeLingo 付録 v0.1</title>
+<title>BridgeLingo 付録 v1.0</title>
 <style>
 :root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--mark:#f4eff9}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
@@ -21,27 +21,27 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:8px 0 20px}@m
 <body>
 <header>
 <h1>BridgeLingo 付録</h1>
-<div class="sub">アイスランド語・基礎一覧 v0.1</div>
-<div class="nav"><a href="index.html">語学図鑑</a><a href="quiz.html">クイズ</a><a class="active" href="appendix.html">付録</a></div>
+<div class="sub">アイスランド語・基礎一覧 v1.0</div>
+<div class="nav"><a href="index.html">語学図鑑</a><a href="hsk.html">HSK単語帳</a><a href="quiz.html">クイズ</a><a class="active" href="appendix.html">付録</a></div>
 </header>
 <main>
 <p class="intro">辞書の巻末付録のように、何度も見返したい基本事項をまとめたページです。まずは人称代名詞、動詞 <strong>vera</strong>、数詞を収録しています。</p>
 <nav class="toc"><a href="#pronouns">人称代名詞</a><a href="#vera">vera</a><a href="#numbers">数詞</a></nav>
 
 <details class="section" id="pronouns" open>
-<summary>人称代名詞〈主格〉</summary>
-<div class="content">
-<p class="note">まず文の主語として使う形です。アイスランド語では、三人称の単数・複数に性の区別があります。</p>
-<div class="table-wrap"><table>
-<thead><tr><th>人称</th><th>単数</th><th>日本語</th><th>複数</th><th>日本語</th></tr></thead>
-<tbody>
-<tr><td>1人称</td><td><span class="is">ég</span></td><td>私</td><td><span class="is">við</span></td><td>私たち</td></tr>
-<tr><td>2人称</td><td><span class="is">þú</span></td><td>あなた</td><td><span class="is">þið</span></td><td>あなたたち</td></tr>
-<tr><td rowspan="3">3人称</td><td><span class="is">hann</span></td><td>彼／男性</td><td><span class="is">þeir</span></td><td>彼ら／男性複数</td></tr>
-<tr><td><span class="is">hún</span></td><td>彼女／女性</td><td><span class="is">þær</span></td><td>彼女ら／女性複数</td></tr>
-<tr><td><span class="is">það</span></td><td>それ／中性</td><td><span class="is">þau</span></td><td>それら／中性・混合グループ</td></tr>
-</tbody></table></div>
-<p class="note"><span class="badge">ポイント</span> <strong>þau</strong> は中性名詞の複数だけでなく、性が混ざったグループにも使われます。</p>
+<summary>人称代名詞〈4格 完全版〉</summary><div class="content">
+<p class="note">主格・対格・与格・属格を、単数と複数に分けてまとめました。3人称は男性・女性・中性で形が分かれます。</p>
+<h2>単数</h2><div class="table-wrap"><table><thead><tr><th>格</th><th>私</th><th>あなた</th><th>彼</th><th>彼女</th><th>それ</th></tr></thead><tbody>
+<tr><td>主格</td><td class="is">ég</td><td class="is">þú</td><td class="is">hann</td><td class="is">hún</td><td class="is">það</td></tr>
+<tr><td>対格</td><td class="is">mig</td><td class="is">þig</td><td class="is">hann</td><td class="is">hana</td><td class="is">það</td></tr>
+<tr><td>与格</td><td class="is">mér</td><td class="is">þér</td><td class="is">honum</td><td class="is">henni</td><td class="is">því</td></tr>
+<tr><td>属格</td><td class="is">mín</td><td class="is">þín</td><td class="is">hans</td><td class="is">hennar</td><td class="is">þess</td></tr></tbody></table></div>
+<h2>複数</h2><div class="table-wrap"><table><thead><tr><th>格</th><th>私たち</th><th>あなたたち</th><th>彼ら</th><th>彼女ら</th><th>それら／混合</th></tr></thead><tbody>
+<tr><td>主格</td><td class="is">við</td><td class="is">þið</td><td class="is">þeir</td><td class="is">þær</td><td class="is">þau</td></tr>
+<tr><td>対格</td><td class="is">okkur</td><td class="is">ykkur</td><td class="is">þá</td><td class="is">þær</td><td class="is">þau</td></tr>
+<tr><td>与格</td><td class="is">okkur</td><td class="is">ykkur</td><td class="is">þeim</td><td class="is">þeim</td><td class="is">þeim</td></tr>
+<tr><td>属格</td><td class="is">okkar</td><td class="is">ykkar</td><td class="is">þeirra</td><td class="is">þeirra</td><td class="is">þeirra</td></tr></tbody></table></div>
+<p class="note"><span class="badge">覚えどころ</span> 複数1・2人称は対格と与格が同じ（okkur / ykkur）。複数3人称は与格がすべて <strong>þeim</strong>、属格がすべて <strong>þeirra</strong> です。</p>
 </div></details>
 
 <details class="section" id="vera" open>
@@ -63,26 +63,13 @@ footer{text-align:center;color:var(--muted);font-size:11px;padding:8px 0 20px}@m
 </div></details>
 
 <details class="section" id="numbers" open>
-<summary>数詞〈0〜10〉</summary>
-<div class="content">
-<p class="note">1〜4は、数える名詞の性と格に合わせて変化します。下は主格の男性・女性・中性の形です。単独で順に数えるときは一般に男性形を使います。</p>
+<summary>数詞〈0〜1000〉</summary><div class="content"><p class="note">1〜4は名詞の性と格に合わせて変化します。10以上はまず「かたまり」として見慣れていきましょう。</p>
 <div class="grid">
-<div class="num-card"><div class="num">0</div><div class="forms">núll</div></div>
-<div class="num-card"><div class="num">1</div><div class="forms">einn / ein / eitt</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
-<div class="num-card"><div class="num">2</div><div class="forms">tveir / tvær / tvö</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
-<div class="num-card"><div class="num">3</div><div class="forms">þrír / þrjár / þrjú</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
-<div class="num-card"><div class="num">4</div><div class="forms">fjórir / fjórar / fjögur</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
-<div class="num-card"><div class="num">5</div><div class="forms">fimm</div></div>
-<div class="num-card"><div class="num">6</div><div class="forms">sex</div></div>
-<div class="num-card"><div class="num">7</div><div class="forms">sjö</div></div>
-<div class="num-card"><div class="num">8</div><div class="forms">átta</div></div>
-<div class="num-card"><div class="num">9</div><div class="forms">níu</div></div>
-<div class="num-card"><div class="num">10</div><div class="forms">tíu</div></div>
-</div>
-<h2>1〜4の例</h2>
-<div class="example"><strong>einn maður</strong><div class="jp">一人の男性（maður＝男性名詞）</div></div>
-<div class="example"><strong>ein kona</strong><div class="jp">一人の女性（kona＝女性名詞）</div></div>
-<div class="example"><strong>eitt barn</strong><div class="jp">一人の子ども（barn＝中性名詞）</div></div>
+<div class="num-card"><div class="num">0</div><div class="forms">núll</div></div><div class="num-card"><div class="num">1</div><div class="forms">einn / ein / eitt</div><div class="gender">男性 ／ 女性 ／ 中性</div></div><div class="num-card"><div class="num">2</div><div class="forms">tveir / tvær / tvö</div><div class="gender">男性 ／ 女性 ／ 中性</div></div><div class="num-card"><div class="num">3</div><div class="forms">þrír / þrjár / þrjú</div><div class="gender">男性 ／ 女性 ／ 中性</div></div><div class="num-card"><div class="num">4</div><div class="forms">fjórir / fjórar / fjögur</div><div class="gender">男性 ／ 女性 ／ 中性</div></div>
+<div class="num-card"><div class="num">5</div><div class="forms">fimm</div></div><div class="num-card"><div class="num">6</div><div class="forms">sex</div></div><div class="num-card"><div class="num">7</div><div class="forms">sjö</div></div><div class="num-card"><div class="num">8</div><div class="forms">átta</div></div><div class="num-card"><div class="num">9</div><div class="forms">níu</div></div><div class="num-card"><div class="num">10</div><div class="forms">tíu</div></div>
+<div class="num-card"><div class="num">11</div><div class="forms">ellefu</div></div><div class="num-card"><div class="num">12</div><div class="forms">tólf</div></div><div class="num-card"><div class="num">13</div><div class="forms">þrettán</div></div><div class="num-card"><div class="num">14</div><div class="forms">fjórtán</div></div><div class="num-card"><div class="num">15</div><div class="forms">fimmtán</div></div><div class="num-card"><div class="num">16</div><div class="forms">sextán</div></div><div class="num-card"><div class="num">17</div><div class="forms">sautján</div></div><div class="num-card"><div class="num">18</div><div class="forms">átján</div></div><div class="num-card"><div class="num">19</div><div class="forms">nítján</div></div><div class="num-card"><div class="num">20</div><div class="forms">tuttugu</div></div>
+<div class="num-card"><div class="num">30</div><div class="forms">þrjátíu</div></div><div class="num-card"><div class="num">40</div><div class="forms">fjörutíu</div></div><div class="num-card"><div class="num">50</div><div class="forms">fimmtíu</div></div><div class="num-card"><div class="num">60</div><div class="forms">sextíu</div></div><div class="num-card"><div class="num">70</div><div class="forms">sjötíu</div></div><div class="num-card"><div class="num">80</div><div class="forms">áttatíu</div></div><div class="num-card"><div class="num">90</div><div class="forms">níutíu</div></div><div class="num-card"><div class="num">100</div><div class="forms">hundrað</div></div><div class="num-card"><div class="num">1000</div><div class="forms">þúsund</div></div></div>
+<h2>組み合わせ例</h2><div class="example"><strong>21 = tuttugu og einn / ein / eitt</strong><div class="jp">20 + og（and）+ 1。後ろの1は名詞の性に合わせます。</div></div><div class="example"><strong>35 = þrjátíu og fimm</strong><div class="jp">30 + og + 5</div></div><div class="example"><strong>100 = hundrað ／ 1000 = þúsund</strong><div class="jp">大きな数はまずこの2語を目印に。</div></div>
 </div></details>
 
 <footer>BridgeLingo Appendix — 少しずつ増やしていく学習用付録</footer>
