@@ -1,8 +1,187 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f3fb"><title>BridgeLingo HSK単語帳</title><style>
-:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}h1{margin:0;font-size:27px}.sub,.count,.hint{color:var(--muted);font-size:12px}.head{display:flex;justify-content:space-between;align-items:end;gap:10px}.nav{display:flex;gap:8px;margin-top:10px;overflow:auto}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}.nav a.active{background:var(--accent);color:#fff}.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}main{max-width:760px;margin:auto;padding:14px 12px 50px}.hint{margin:0 2px 12px;line-height:1.6}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}.summary{width:100%;padding:16px;text-align:left;background:transparent;border:0}.top{display:flex;justify-content:space-between;gap:12px;align-items:start}.word{font-size:25px;font-weight:800;color:var(--blue)}.arrow{color:var(--muted)}.card.open .arrow{transform:rotate(180deg)}.pinyin{font-size:15px;color:var(--accent);margin-top:4px}.meaning{font-size:15px;margin-top:7px}.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fcf9ff}.card.open .detail{display:block}.section-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em;margin-bottom:6px}.example{font-size:17px;line-height:1.65}.example-pinyin,.example-ja{color:var(--muted);font-size:13px;line-height:1.6;margin-top:5px}.audio-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.speak{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);color:var(--text);font-size:13px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px}.chip{font-size:11px;color:var(--muted);background:var(--soft);padding:5px 8px;border-radius:999px}.empty{display:none;text-align:center;color:var(--muted);padding:50px}
-</style></head><body><header><div class="head"><div><h1>BridgeLingo HSK</h1><div class="sub">HSK5級レベル・試作20語</div></div><div id="count" class="count"></div></div><div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="hsk.html">HSK単語帳</a><a href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div><input id="q" class="search" type="search" placeholder="単語・拼音・意味・例文・タグから検索"></header><main><p class="hint">20語の試作版です。カードを開くと例文が見られます。🔊はiPhone／ブラウザの中国語音声（zh-CN）で単語と例文を読み上げます。</p><div id="list"></div><div id="empty" class="empty">該当する単語がありません。</div></main><script src="hsk-data.js"></script><script>
-var q=document.getElementById("q"),list=document.getElementById("list"),count=document.getElementById("count"),empty=document.getElementById("empty");function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}function norm(s){return String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"")}function searchable(x){return norm([x.word,x.pinyin,x.meaning,x.example,x.example_pinyin,x.example_ja,x.tags.join(" ")].join(" "))}
-function speakChinese(text){if(!("speechSynthesis" in window)){alert("このブラウザは音声読み上げに対応していません。");return}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.86;var voices=window.speechSynthesis.getVoices();var v=voices.find(function(x){return /^zh[-_]CN/i.test(x.lang)})||voices.find(function(x){return /^zh/i.test(x.lang)});if(v)u.voice=v;window.speechSynthesis.speak(u)}
-function makeCard(x){var a=document.createElement("article");a.className="card";a.innerHTML='<button type="button" class="summary"><div class="top"><div><div class="word">'+esc(x.word)+'</div><div class="pinyin">'+esc(x.pinyin)+'</div><div class="meaning">'+esc(x.meaning)+'</div></div><div class="arrow">⌄</div></div></button><div class="detail"><div class="section-title">EXAMPLE</div><div class="example">'+esc(x.example)+'</div><div class="example-pinyin">'+esc(x.example_pinyin)+'</div><div class="example-ja">'+esc(x.example_ja)+'</div><div class="audio-row"><button type="button" class="speak" data-text="'+esc(x.word)+'">🔊 単語</button><button type="button" class="speak" data-text="'+esc(x.example)+'">🔊 例文</button></div><div class="chips">'+x.tags.map(function(t){return '<span class="chip">#'+esc(t)+'</span>'}).join("")+'<span class="chip">'+esc(x.id)+'</span></div></div>';a.querySelector(".summary").onclick=function(){a.classList.toggle("open")};return a}
-function render(){var z=norm(q.value.trim()),arr=HSK_DATA.filter(function(x){return !z||searchable(x).includes(z)});list.innerHTML="";arr.forEach(function(x){list.appendChild(makeCard(x))});count.textContent=arr.length+"語";empty.style.display=arr.length?"none":"block"}q.oninput=render;document.addEventListener("click",function(e){var b=e.target.closest(".speak");if(!b)return;e.preventDefault();e.stopPropagation();speakChinese(b.getAttribute("data-text")||"")});if(window.speechSynthesis){window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()}}render();
-</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3fb">
+<title>BridgeLingo HSK v1.1</title>
+<style>
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e8f5ec;--warn:#fff4dc;--danger:#fbe8ef}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:10px} h1{margin:0;font-size:27px}
+.sub,.count,.hint,.mini{color:var(--muted);font-size:12px}
+.nav,.filters,.status-filter{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:1px}
+.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
+.nav a.active{background:var(--accent);color:#fff}
+.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
+.pill{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);font-size:13px;white-space:nowrap;color:var(--text)}
+.pill.on{background:var(--accent);color:#fff}
+main{max-width:760px;margin:auto;padding:14px 12px 50px}
+.dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat strong{display:block;font-size:20px;color:var(--blue)}
+.review-btn{width:100%;border:0;border-radius:16px;padding:13px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;margin-bottom:12px}
+.hint{margin:0 2px 12px;line-height:1.6}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}
+.summary{width:100%;padding:16px;text-align:left;background:transparent;border:0}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:start}.word{font-size:25px;font-weight:800;color:var(--blue)}.arrow{color:var(--muted)}
+.card.open .arrow{transform:rotate(180deg)}.pinyin{font-size:15px;color:var(--accent);margin-top:4px}.meaning{font-size:15px;margin-top:7px}
+.level{display:inline-block;margin-top:8px;padding:4px 7px;border-radius:999px;background:var(--soft);color:var(--muted);font-size:11px}
+.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fcf9ff}.card.open .detail{display:block}
+.section-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em;margin-bottom:6px}.example{font-size:17px;line-height:1.65}
+.example-pinyin,.example-ja{color:var(--muted);font-size:13px;line-height:1.6;margin-top:5px}.placeholder{color:var(--muted);font-size:13px}
+.audio-row,.status-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.speak,.status-btn{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);color:var(--text);font-size:13px}
+.status-btn.learned.active{background:var(--ok)} .status-btn.unsure.active{background:var(--warn)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px}.chip{font-size:11px;color:var(--muted);background:var(--soft);padding:5px 8px;border-radius:999px}
+.empty{display:none;text-align:center;color:var(--muted);padding:50px}
+
+/* review quiz */
+.modal{display:none;position:fixed;inset:0;z-index:50;background:#f7f3fb;padding:max(18px,env(safe-area-inset-top)) 14px 30px;overflow:auto}
+.modal.show{display:block}.quizbox{max-width:700px;margin:auto}.quizhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.close{border:0;border-radius:999px;background:var(--soft);padding:9px 12px}
+.qcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 8px 24px #4f3a6b14}
+.qword{font-size:32px;font-weight:800;color:var(--blue);text-align:center;margin:16px 0 5px}.qpinyin{text-align:center;color:var(--accent);margin-bottom:18px}
+.choices{display:grid;gap:10px}.choice{border:1px solid var(--line);border-radius:15px;background:#fff;padding:13px;text-align:left;font-size:15px}
+.choice.correct{background:var(--ok)}.choice.wrong{background:var(--danger)}
+.feedback{display:none;margin-top:12px;padding:12px;border-radius:14px;background:var(--soft)}
+.next{display:none;width:100%;margin-top:12px;border:0;border-radius:15px;padding:12px;background:var(--accent);color:#fff;font-weight:700}
+.result{text-align:center;padding:40px 10px}.result strong{font-size:42px;color:var(--blue)}
+@media(max-width:540px){.dashboard{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="head"><div><h1>BridgeLingo HSK</h1><div class="sub">HSK4・5 単語500語 + 復習</div></div><div id="count" class="count"></div></div>
+<div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="hsk.html">HSK単語帳</a><a href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div>
+<input id="q" class="search" type="search" placeholder="単語・拼音・意味から検索">
+<div class="filters">
+<button class="pill level-filter on" data-level="all">4級＋5級</button>
+<button class="pill level-filter" data-level="4">HSK4</button>
+<button class="pill level-filter" data-level="5">HSK5</button>
+</div>
+<div class="status-filter">
+<button class="pill state-filter on" data-state="all">すべて</button>
+<button class="pill state-filter" data-state="unsure">不安だけ</button>
+<button class="pill state-filter" data-state="learned">覚えた</button>
+</div>
+</header>
+
+<main>
+<div class="dashboard">
+<div class="stat"><strong id="totalStat">500</strong><span class="mini">収録</span></div>
+<div class="stat"><strong id="learnedStat">0</strong><span class="mini">覚えた</span></div>
+<div class="stat"><strong id="unsureStat">0</strong><span class="mini">不安</span></div>
+</div>
+<button id="reviewStart" class="review-btn">🎯 不安語から復習クイズ（最大10問）</button>
+<p class="hint">「覚えた」「不安」はこのiPhoneのブラウザに保存されます。中国語音声は端末の zh-CN 読み上げを使います。今回の大量追加分は単語・拼音を中心にし、既存の一部単語だけ日本語意味・例文付きです。</p>
+<div id="list"></div><div id="empty" class="empty">該当する単語がありません。</div>
+</main>
+
+<div id="reviewModal" class="modal">
+<div class="quizbox">
+<div class="quizhead"><div><strong>復習クイズ</strong><div id="qProgress" class="mini"></div></div><button id="closeQuiz" class="close">閉じる</button></div>
+<div id="quizArea"></div>
+</div>
+</div>
+
+<script src="hsk-data.js"></script>
+<script>
+(function(){
+"use strict";
+var STORAGE_KEY="bridgelingo_hsk_status_v1";
+var state={};
+try{state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}catch(e){state={}}
+var levelMode="all",stateMode="all";
+var q=document.getElementById("q"),list=document.getElementById("list"),count=document.getElementById("count"),empty=document.getElementById("empty");
+
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
+function norm(s){return String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"")}
+function getState(id){return state[id]||""}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateStats()}
+function setState(id,val){if(state[id]===val)delete state[id];else state[id]=val;save();render()}
+function meaningText(x){return x.meaning || (x.meaning_en ? "英: "+x.meaning_en : "")}
+function searchable(x){return norm([x.word,x.pinyin,x.meaning,x.meaning_en,(x.tags||[]).join(" ")].join(" "))}
+function speakChinese(text){
+ if(!("speechSynthesis" in window)){alert("このブラウザは音声読み上げに対応していません。");return}
+ window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.86;
+ var vs=window.speechSynthesis.getVoices();var v=vs.find(function(x){return /^zh[-_]CN/i.test(x.lang)})||vs.find(function(x){return /^zh/i.test(x.lang)});if(v)u.voice=v;
+ window.speechSynthesis.speak(u)
+}
+function makeCard(x){
+ var s=getState(x.id),hasExample=!!x.example;
+ var a=document.createElement("article");a.className="card";
+ a.innerHTML='<button type="button" class="summary"><div class="top"><div><div class="word">'+esc(x.word)+'</div><div class="pinyin">'+esc(x.pinyin)+'</div><div class="meaning">'+esc(meaningText(x))+'</div><span class="level">HSK'+x.level+'</span></div><div class="arrow">⌄</div></div></button>'+
+ '<div class="detail">'+
+ (hasExample?'<div class="section-title">EXAMPLE</div><div class="example">'+esc(x.example)+'</div><div class="example-pinyin">'+esc(x.example_pinyin)+'</div><div class="example-ja">'+esc(x.example_ja)+'</div>':'<div class="placeholder">例文は今後追加予定です。</div>')+
+ '<div class="audio-row"><button type="button" class="speak" data-text="'+esc(x.word)+'">🔊 単語</button>'+(hasExample?'<button type="button" class="speak" data-text="'+esc(x.example)+'">🔊 例文</button>':'')+'</div>'+
+ '<div class="status-row"><button type="button" class="status-btn learned '+(s==="learned"?"active":"")+'" data-id="'+x.id+'" data-state="learned">✓ 覚えた</button><button type="button" class="status-btn unsure '+(s==="unsure"?"active":"")+'" data-id="'+x.id+'" data-state="unsure">？ 不安</button></div>'+
+ '<div class="chips"><span class="chip">HSK'+x.level+'</span><span class="chip">'+x.id+'</span></div></div>';
+ a.querySelector(".summary").onclick=function(){a.classList.toggle("open")};return a
+}
+function filtered(){
+ var z=norm(q.value.trim());
+ return HSK_DATA.filter(function(x){
+  var okLevel=levelMode==="all"||String(x.level)===levelMode;
+  var s=getState(x.id),okState=stateMode==="all"||s===stateMode;
+  return okLevel&&okState&&(!z||searchable(x).includes(z))
+ })
+}
+function render(){var arr=filtered();list.innerHTML="";arr.forEach(function(x){list.appendChild(makeCard(x))});count.textContent=arr.length+"語";empty.style.display=arr.length?"none":"block";updateStats()}
+function updateStats(){
+ document.getElementById("totalStat").textContent=HSK_DATA.length;
+ var vals=Object.values(state);document.getElementById("learnedStat").textContent=vals.filter(function(x){return x==="learned"}).length;
+ document.getElementById("unsureStat").textContent=vals.filter(function(x){return x==="unsure"}).length
+}
+q.oninput=render;
+document.querySelectorAll(".level-filter").forEach(function(b){b.onclick=function(){document.querySelectorAll(".level-filter").forEach(function(x){x.classList.remove("on")});b.classList.add("on");levelMode=b.dataset.level;render()}});
+document.querySelectorAll(".state-filter").forEach(function(b){b.onclick=function(){document.querySelectorAll(".state-filter").forEach(function(x){x.classList.remove("on")});b.classList.add("on");stateMode=b.dataset.state;render()}});
+document.addEventListener("click",function(e){
+ var sp=e.target.closest(".speak");if(sp){e.preventDefault();e.stopPropagation();speakChinese(sp.dataset.text||"");return}
+ var sb=e.target.closest(".status-btn");if(sb){e.preventDefault();e.stopPropagation();setState(sb.dataset.id,sb.dataset.state)}
+});
+
+/* Review quiz: prioritize unsure; if fewer than 4, supplement with unmarked words. */
+var rq=[],ri=0,rscore=0;
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function startReview(){
+ var unsure=HSK_DATA.filter(function(x){return getState(x.id)==="unsure"});
+ if(!unsure.length){alert("まだ「不安」にした単語がありません。単語カードで「？ 不安」を付けてみてね。");return}
+ rq=shuffle(unsure).slice(0,10);ri=0;rscore=0;
+ document.getElementById("reviewModal").classList.add("show");renderReview()
+}
+function distractors(correct){
+ var pool=HSK_DATA.filter(function(x){return x.id!==correct.id});
+ return shuffle(pool).slice(0,3)
+}
+function renderReview(){
+ var area=document.getElementById("quizArea");
+ if(ri>=rq.length){
+  area.innerHTML='<div class="qcard result"><div class="mini">RESULT</div><strong>'+rscore+' / '+rq.length+'</strong><p>不安語の復習、おつかれさま！</p><button id="finishReview" class="next" style="display:block">単語帳へ戻る</button></div>';
+  document.getElementById("qProgress").textContent="";
+  document.getElementById("finishReview").onclick=closeReview;return
+ }
+ var x=rq[ri],opts=shuffle([x].concat(distractors(x)));
+ document.getElementById("qProgress").textContent=(ri+1)+" / "+rq.length+"　正解 "+rscore;
+ area.innerHTML='<div class="qcard"><div class="mini">この単語の拼音はどれ？</div><div class="qword">'+esc(x.word)+'</div><div class="qpinyin">🔊を押して確認もできます</div><button class="speak" data-text="'+esc(x.word)+'">🔊 発音</button><div class="choices">'+
+ opts.map(function(o){return '<button class="choice" data-id="'+o.id+'">'+esc(o.pinyin)+'</button>'}).join("")+
+ '</div><div id="rFeedback" class="feedback"></div><button id="rNext" class="next">'+(ri===rq.length-1?"結果を見る":"次へ")+'</button></div>';
+ area.querySelectorAll(".choice").forEach(function(b){b.onclick=function(){
+  if(area.dataset.answered==="1")return;area.dataset.answered="1";
+  var ok=b.dataset.id===x.id;if(ok)rscore++;
+  area.querySelectorAll(".choice").forEach(function(c){if(c.dataset.id===x.id)c.classList.add("correct");else if(c===b)c.classList.add("wrong");c.disabled=true});
+  var fb=document.getElementById("rFeedback");fb.style.display="block";fb.innerHTML='<strong>'+(ok?"正解！":"正解は "+esc(x.pinyin))+'</strong><div>'+esc(meaningText(x))+'</div>';
+  var nx=document.getElementById("rNext");nx.style.display="block";nx.onclick=function(){ri++;area.dataset.answered="0";renderReview()}
+ }});
+ area.dataset.answered="0"
+}
+function closeReview(){window.speechSynthesis&&window.speechSynthesis.cancel();document.getElementById("reviewModal").classList.remove("show")}
+document.getElementById("reviewStart").onclick=startReview;document.getElementById("closeQuiz").onclick=closeReview;
+
+render();
+})();
+</script>
+</body>
+</html>
