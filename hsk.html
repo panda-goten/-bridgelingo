@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3fb">
-<title>BridgeLingo HSK v1.2</title>
+<title>BridgeLingo HSK v1.3</title>
 <style>
 :root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e8f5ec;--warn:#fff4dc;--danger:#fbe8ef}
 *{box-sizing:border-box}
@@ -12,7 +12,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,B
 header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
 .head{display:flex;justify-content:space-between;align-items:end;gap:10px} h1{margin:0;font-size:27px}
 .sub,.count,.hint,.mini{color:var(--muted);font-size:12px}
-.nav,.filters,.status-filter{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:1px}
+.nav,.filters,.status-filter,.sort-filter{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:1px}
 .nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}
 .nav a.active{background:var(--accent);color:#fff}
 .search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
@@ -54,8 +54,8 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 </head>
 <body>
 <header>
-<div class="head"><div><h1>BridgeLingo HSK</h1><div class="sub">HSK4・5 単語500語 + 日本語訳 + 復習</div></div><div id="count" class="count"></div></div>
-<div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="hsk.html">HSK単語帳</a><a href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div>
+<div class="head"><div><h1>BridgeLingo HSK</h1><div class="sub">HSK4・5 単語500語 + 日本語訳 + 復習 + 並び替え</div></div><div id="count" class="count"></div></div>
+<div class="nav"><a href="index.html">語学図鑑</a><a class="active" href="hsk.html">HSK単語帳</a><a href="idioms.html">三字・四字</a><a href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div>
 <input id="q" class="search" type="search" placeholder="単語・拼音・意味から検索">
 <div class="filters">
 <button class="pill level-filter on" data-level="all">4級＋5級</button>
@@ -67,6 +67,10 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 <button class="pill state-filter" data-state="unsure">不安だけ</button>
 <button class="pill state-filter" data-state="learned">覚えた</button>
 </div>
+<div class="sort-filter">
+<button class="pill sort-filter-btn on" data-sort="pinyin">拼音順</button>
+<button class="pill sort-filter-btn" data-sort="random">ランダム</button>
+</div>
 </header>
 
 <main>
@@ -76,7 +80,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 <div class="stat"><strong id="unsureStat">0</strong><span class="mini">不安</span></div>
 </div>
 <button id="reviewStart" class="review-btn">🎯 不安語から復習クイズ（最大10問）</button>
-<p class="hint">「覚えた」「不安」はこのiPhoneのブラウザに保存されます。中国語音声は端末の zh-CN 読み上げを使います。500語すべてに日本語訳と英語訳を表示します。例文は既存の一部単語から、今後少しずつ追加していく予定です。</p>
+<p class="hint">「覚えた」「不安」はこのiPhoneのブラウザに保存されます。中国語音声は端末の zh-CN 読み上げを使います。500語すべてに日本語訳と英語訳を表示します。上のボタンで拼音順とランダム表示を切り替えられます。例文は既存の一部単語から、今後少しずつ追加していく予定です。</p>
 <div id="list"></div><div id="empty" class="empty">該当する単語がありません。</div>
 </main>
 
@@ -94,7 +98,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 var STORAGE_KEY="bridgelingo_hsk_status_v1";
 var state={};
 try{state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}")}catch(e){state={}}
-var levelMode="all",stateMode="all";
+var levelMode="all",stateMode="all",sortMode="pinyin",randomRank={};
 var q=document.getElementById("q"),list=document.getElementById("list"),count=document.getElementById("count"),empty=document.getElementById("empty");
 
 function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
@@ -121,13 +125,29 @@ function makeCard(x){
  '<div class="chips"><span class="chip">HSK'+x.level+'</span><span class="chip">'+x.id+'</span></div></div>';
  a.querySelector(".summary").onclick=function(){a.classList.toggle("open")};return a
 }
+function pinyinKey(s){return norm(s||"").replace(/[^a-z0-9]/g,"")}
+function makeRandomRank(){
+ randomRank={};
+ shuffle(HSK_DATA).forEach(function(x,i){randomRank[x.id]=i})
+}
 function filtered(){
  var z=norm(q.value.trim());
- return HSK_DATA.filter(function(x){
+ var arr=HSK_DATA.filter(function(x){
   var okLevel=levelMode==="all"||String(x.level)===levelMode;
   var s=getState(x.id),okState=stateMode==="all"||s===stateMode;
   return okLevel&&okState&&(!z||searchable(x).includes(z))
- })
+ });
+ if(sortMode==="random"){
+   if(!Object.keys(randomRank).length)makeRandomRank();
+   arr.sort(function(a,b){return (randomRank[a.id]||0)-(randomRank[b.id]||0)})
+ }else{
+   arr.sort(function(a,b){
+     var pa=pinyinKey(a.pinyin),pb=pinyinKey(b.pinyin);
+     if(pa<pb)return -1;if(pa>pb)return 1;
+     return String(a.word).localeCompare(String(b.word),"zh-CN")
+   })
+ }
+ return arr
 }
 function render(){var arr=filtered();list.innerHTML="";arr.forEach(function(x){list.appendChild(makeCard(x))});count.textContent=arr.length+"語";empty.style.display=arr.length?"none":"block";updateStats()}
 function updateStats(){
@@ -138,6 +158,12 @@ function updateStats(){
 q.oninput=render;
 document.querySelectorAll(".level-filter").forEach(function(b){b.onclick=function(){document.querySelectorAll(".level-filter").forEach(function(x){x.classList.remove("on")});b.classList.add("on");levelMode=b.dataset.level;render()}});
 document.querySelectorAll(".state-filter").forEach(function(b){b.onclick=function(){document.querySelectorAll(".state-filter").forEach(function(x){x.classList.remove("on")});b.classList.add("on");stateMode=b.dataset.state;render()}});
+document.querySelectorAll(".sort-filter-btn").forEach(function(b){b.onclick=function(){
+ document.querySelectorAll(".sort-filter-btn").forEach(function(x){x.classList.remove("on")});b.classList.add("on");
+ sortMode=b.dataset.sort;
+ if(sortMode==="random")makeRandomRank();
+ render()
+}});
 document.addEventListener("click",function(e){
  var sp=e.target.closest(".speak");if(sp){e.preventDefault();e.stopPropagation();speakChinese(sp.dataset.text||"");return}
  var sb=e.target.closest(".status-btn");if(sb){e.preventDefault();e.stopPropagation();setState(sb.dataset.id,sb.dataset.state)}

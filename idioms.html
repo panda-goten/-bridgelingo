@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3fb">
+<title>BridgeLingo 三字・四字 v0.1</title>
+<style>
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:10px}h1{margin:0;font-size:27px}.sub,.count,.hint{color:var(--muted);font-size:12px}
+.nav,.filters{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:1px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}.nav a.active{background:var(--accent);color:#fff}
+.search{width:100%;margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:16px}
+.pill{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);font-size:13px;white-space:nowrap;color:var(--text)}.pill.on{background:var(--accent);color:#fff}
+main{max-width:760px;margin:auto;padding:14px 12px 50px}.hint{margin:0 2px 12px;line-height:1.6}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}
+.summary{width:100%;padding:16px;text-align:left;background:transparent;border:0}.top{display:flex;justify-content:space-between;gap:12px}.expr{font-size:27px;font-weight:800;color:var(--blue)}.pinyin{color:var(--accent);margin-top:4px}.meaning{margin-top:7px}.kind{display:inline-block;margin-top:9px;background:var(--soft);color:var(--muted);padding:5px 8px;border-radius:999px;font-size:11px}.arrow{color:var(--muted)}
+.detail{display:none;padding:16px;border-top:1px solid var(--line);background:#fcf9ff}.card.open .detail{display:block}.section-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em}.example{font-size:17px;line-height:1.65;margin-top:6px}.example-pinyin,.example-ja{color:var(--muted);font-size:13px;line-height:1.6;margin-top:5px}
+.audio{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.speak{border:0;border-radius:999px;padding:9px 12px;background:var(--soft);font-size:13px;color:var(--text)}
+.empty,.error{text-align:center;color:var(--muted);padding:45px 10px}.error{display:none}
+</style>
+</head>
+<body>
+<header>
+<div class="head"><div><h1>BridgeLingo 三字・四字</h1><div class="sub">三字表現 + 四字成語・試作30件</div></div><div id="count" class="count"></div></div>
+<div class="nav"><a href="index.html">語学図鑑</a><a href="hsk.html">HSK単語帳</a><a class="active" href="idioms.html">三字・四字</a><a href="quiz.html">クイズ</a><a href="appendix.html">付録</a></div>
+<input id="q" class="search" type="search" placeholder="表現・拼音・日本語・例文から検索">
+<div class="filters"><button class="pill kind on" data-kind="all">すべて</button><button class="pill kind" data-kind="三字表現">三字表現</button><button class="pill kind" data-kind="四字成語">四字成語</button></div>
+</header>
+<main>
+<p class="hint">🔊で表現と例文を普通話（zh-CN）で読み上げます。データは <strong>idiom.csv</strong> に分離してあるので、今後はCSVだけ編集・増量できます。</p>
+<div id="error" class="error">idiom.csvを読み込めませんでした。idioms.htmlとidiom.csvを同じ場所に置いてください。</div>
+<div id="list"></div><div id="empty" class="empty" style="display:none">該当する表現がありません。</div>
+</main>
+<script>
+(function(){
+var DATA=[],kindMode="all",q=document.getElementById("q"),list=document.getElementById("list"),count=document.getElementById("count"),empty=document.getElementById("empty");
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
+function norm(s){return String(s||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"")}
+function parseCSV(text){
+ var rows=[],row=[],cell="",q=false,i=0,c;
+ if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+ for(;i<text.length;i++){
+  c=text[i];
+  if(q){
+   if(c==='"'&&text[i+1]==='"'){cell+='"';i++}
+   else if(c==='"'){q=false}
+   else cell+=c
+  }else{
+   if(c==='"')q=true;
+   else if(c===","){row.push(cell);cell=""}
+   else if(c==="\n"){row.push(cell);rows.push(row);row=[];cell=""}
+   else if(c!=="\r")cell+=c
+  }
+ }
+ if(cell.length||row.length){row.push(cell);rows.push(row)}
+ var head=rows.shift()||[];
+ return rows.filter(function(r){return r.some(Boolean)}).map(function(r){var o={};head.forEach(function(k,j){o[k]=r[j]||""});return o})
+}
+function speak(text){
+ if(!("speechSynthesis" in window)){alert("このブラウザは読み上げに対応していません。");return}
+ speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.86;
+ var vs=speechSynthesis.getVoices(),v=vs.find(function(x){return /^zh[-_]CN/i.test(x.lang)})||vs.find(function(x){return /^zh/i.test(x.lang)});if(v)u.voice=v;speechSynthesis.speak(u)
+}
+function searchable(x){return norm([x.type,x.expression,x.pinyin,x.meaning_ja,x.example,x.example_pinyin,x.example_ja].join(" "))}
+function card(x){
+ var a=document.createElement("article");a.className="card";
+ a.innerHTML='<button class="summary" type="button"><div class="top"><div><div class="expr">'+esc(x.expression)+'</div><div class="pinyin">'+esc(x.pinyin)+'</div><div class="meaning">🇯🇵 '+esc(x.meaning_ja)+'</div><span class="kind">'+esc(x.type)+'</span></div><div class="arrow">⌄</div></div></button>'+
+ '<div class="detail"><div class="section-title">EXAMPLE</div><div class="example">'+esc(x.example)+'</div><div class="example-pinyin">'+esc(x.example_pinyin)+'</div><div class="example-ja">🇯🇵 '+esc(x.example_ja)+'</div><div class="audio"><button class="speak" type="button" data-text="'+esc(x.expression)+'">🔊 表現</button><button class="speak" type="button" data-text="'+esc(x.example)+'">🔊 例文</button></div></div>';
+ a.querySelector(".summary").onclick=function(){a.classList.toggle("open")};return a
+}
+function render(){var z=norm(q.value.trim()),arr=DATA.filter(function(x){return (kindMode==="all"||x.type===kindMode)&&(!z||searchable(x).includes(z))});list.innerHTML="";arr.forEach(function(x){list.appendChild(card(x))});count.textContent=arr.length+"件";empty.style.display=arr.length?"none":"block"}
+q.oninput=render;
+document.querySelectorAll(".kind").forEach(function(b){b.onclick=function(){document.querySelectorAll(".kind").forEach(function(x){x.classList.remove("on")});b.classList.add("on");kindMode=b.dataset.kind;render()}});
+document.addEventListener("click",function(e){var b=e.target.closest(".speak");if(!b)return;e.preventDefault();e.stopPropagation();speak(b.dataset.text||"")});
+fetch("idiom.csv",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("load");return r.text()}).then(function(t){DATA=parseCSV(t);render()}).catch(function(){document.getElementById("error").style.display="block"});
+})();
+</script>
+</body>
+</html>
