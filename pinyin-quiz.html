@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3fb">
+<title>BridgeLingo 拼音クイズ v1.0</title>
+<style>
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e8f5ec;--ng:#fbe8ef}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+h1{margin:0;font-size:27px}.sub,.mini,.note{color:var(--muted);font-size:12px}.nav{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:1px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}.nav a.active{background:var(--accent);color:#fff}
+main{max-width:720px;margin:auto;padding:14px 12px 50px}.panel,.qcard,.result{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px #4f3a6b14}.panel{padding:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted);font-weight:700}select,button{font:inherit;color:var(--text);border:0;border-radius:14px;padding:12px;background:var(--soft)}select{width:100%}.primary{width:100%;margin-top:14px;background:var(--accent);color:#fff;font-weight:700;font-size:16px}.note{margin-top:10px;line-height:1.6}
+.quiz{display:none}.progress{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:2px 2px 10px}.qcard{padding:18px}.eyebrow{font-size:12px;font-weight:700;color:var(--accent);text-align:center}.pinyin{font-size:30px;font-weight:800;color:var(--blue);text-align:center;line-height:1.45;margin:18px 0 20px;word-break:break-word}.pinyin.sentence{font-size:23px}
+.choices{display:grid;gap:10px}.choice{text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;font-size:16px;line-height:1.5}.choice.correct{background:var(--ok);border-color:#9ec7a2}.choice.wrong{background:var(--ng);border-color:#d9a49c}
+.answer{display:none;margin-top:15px;padding:15px;border-radius:16px;background:#fcf9ff;border:1px solid var(--line)}.result-label{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em}.hanzi{font-size:27px;font-weight:800;color:var(--blue);margin-top:7px;line-height:1.5}.hanzi.sentence{font-size:21px}.answer-pinyin{color:var(--accent);font-size:14px;margin-top:4px;line-height:1.55}.meaning{margin-top:8px;line-height:1.6}.audio{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.speak{padding:9px 12px;border-radius:999px;font-size:13px}.next{display:none;width:100%;margin-top:12px;background:var(--accent);color:#fff;font-weight:700}
+.result{display:none;padding:24px;text-align:center}.score{font-size:44px;font-weight:800;color:var(--blue);margin:10px 0}.actions{display:grid;gap:10px;margin-top:18px}.actions button,.actions a{display:block;text-decoration:none;text-align:center;border-radius:14px;padding:12px;background:var(--soft);color:var(--text)}.actions .again{background:var(--accent);color:#fff}.error{display:none;background:var(--ng);border:1px solid #d9a49c;border-radius:14px;padding:12px;margin-bottom:12px}
+@media(max-width:540px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>🔤 拼音クイズ</h1>
+<div class="sub">漢字を見ずに、拼音だけから意味を推測</div>
+<div class="nav"><a href="index.html">語学図鑑</a><a href="hsk.html">HSK単語帳</a><a class="active" href="pinyin-quiz.html">拼音クイズ</a><a href="idioms.html">三字・四字</a><a href="quiz.html">多言語クイズ</a><a href="appendix.html">付録</a></div>
+</header>
+<main>
+<div id="error" class="error"></div>
+<section id="setup" class="panel">
+<div class="grid">
+<div class="field"><label for="mode">出題モード</label><select id="mode"><option value="word" selected>単語：拼音 → 日本語</option><option value="sentence">例文：拼音 → 日本語</option></select></div>
+<div class="field"><label for="level">HSKレベル</label><select id="level"><option value="all">HSK4＋5</option><option value="4">HSK4</option><option value="5">HSK5</option></select></div>
+<div class="field full"><label for="count">問題数</label><select id="count"><option value="5" selected>5問</option><option value="10">10問</option><option value="20">20問</option></select></div>
+</div>
+<button id="start" class="primary" type="button">クイズを始める</button>
+<div id="availability" class="note"></div>
+<div class="note">出題中は漢字を表示しません。答えた後に漢字・拼音・日本語を表示し、音が出せる時だけ🔊で発音確認できます。</div>
+</section>
+<section id="quiz" class="quiz">
+<div class="progress"><span id="progress"></span><span id="scoreNow"></span></div>
+<div class="qcard">
+<div id="eyebrow" class="eyebrow"></div>
+<div id="pinyin" class="pinyin"></div>
+<div id="choices" class="choices"></div>
+<div id="answer" class="answer"></div>
+<button id="next" class="next" type="button">次の問題へ</button>
+</div>
+</section>
+<section id="result" class="result">
+<div class="mini">RESULT</div><div id="finalScore" class="score"></div><div id="message"></div>
+<div class="actions"><button id="again" class="again" type="button">同じ設定でもう一度</button><button id="change" type="button">設定を変える</button><a href="hsk.html">HSK単語帳へ戻る</a></div>
+</section>
+</main>
+<script src="hsk-data.js"></script>
+<script>
+(function(){
+"use strict";
+function el(id){return document.getElementById(id)}
+var setup=el("setup"),quiz=el("quiz"),result=el("result"),mode=el("mode"),level=el("level"),count=el("count");
+var questions=[],current=0,score=0,settings=null,answered=false;
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function speakChinese(text){
+ if(!("speechSynthesis" in window)){alert("このブラウザは音声読み上げに対応していません。");return}
+ window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.86;
+ var vs=window.speechSynthesis.getVoices(),v=vs.find(function(x){return /^zh[-_]CN/i.test(x.lang)})||vs.find(function(x){return /^zh/i.test(x.lang)});if(v)u.voice=v;
+ window.speechSynthesis.speak(u)
+}
+function eligible(s){return HSK_DATA.filter(function(x){var l=s.level==="all"||String(x.level)===s.level;var m=s.mode==="word"?!!(x.pinyin&&x.meaning):!!(x.example_pinyin&&x.example_ja&&x.example);return l&&m})}
+function updateAvailability(){var s={mode:mode.value,level:level.value},n=eligible(s).length;el("availability").textContent=(mode.value==="word"?"単語":"例文")+"モードで出題できるデータ："+n+"件"}
+function fields(x){if(settings.mode==="word")return {prompt:x.pinyin,meaning:x.meaning,hanzi:x.word,pinyin:x.pinyin,audio:x.word};return {prompt:x.example_pinyin,meaning:x.example_ja,hanzi:x.example,pinyin:x.example_pinyin,audio:x.example}}
+function startQuiz(reuse){
+ if(!reuse)settings={mode:mode.value,level:level.value,count:Number(count.value)};
+ var pool=eligible(settings);if(pool.length<4){alert("この設定では四択に必要なデータが足りません。");return}
+ questions=shuffle(pool).slice(0,Math.min(settings.count,pool.length));current=0;score=0;answered=false;
+ setup.style.display="none";result.style.display="none";quiz.style.display="block";render();window.scrollTo(0,0)
+}
+function makeWrongPool(correct){var seen={};seen[fields(correct).meaning]=1;return shuffle(eligible(settings).filter(function(x){var m=fields(x).meaning;if(!m||seen[m])return false;seen[m]=1;return true}))}
+function render(){
+ var x=questions[current],f=fields(x),opts=shuffle([x].concat(makeWrongPool(x).slice(0,3)));answered=false;
+ el("progress").textContent=(current+1)+" / "+questions.length;el("scoreNow").textContent="正解 "+score;
+ el("eyebrow").textContent=settings.mode==="word"?"この拼音の単語の意味は？":"この拼音の文の意味は？";
+ el("pinyin").textContent=f.prompt;el("pinyin").className="pinyin"+(settings.mode==="sentence"?" sentence":"");
+ var box=el("choices");box.innerHTML="";
+ opts.forEach(function(o){var b=document.createElement("button");b.type="button";b.className="choice";b.textContent=fields(o).meaning;b.dataset.id=o.id;b.onclick=function(){choose(b,o,x)};box.appendChild(b)});
+ el("answer").style.display="none";el("answer").innerHTML="";el("next").style.display="none"
+}
+function choose(button,selected,correct){
+ if(answered)return;answered=true;var ok=selected.id===correct.id;if(ok)score++;
+ Array.prototype.forEach.call(document.querySelectorAll(".choice"),function(b){b.disabled=true;if(b.dataset.id===correct.id)b.classList.add("correct");else if(b===button)b.classList.add("wrong")});
+ var f=fields(correct),ans=el("answer");ans.style.display="block";
+ ans.innerHTML='<div class="result-label">'+(ok?"正解！ 🎉":"正解はこちら")+'</div><div class="hanzi'+(settings.mode==="sentence"?" sentence":"")+'">'+esc(f.hanzi)+'</div><div class="answer-pinyin">'+esc(f.pinyin)+'</div><div class="meaning">🇯🇵 '+esc(f.meaning)+'</div><div class="audio"><button type="button" class="speak" data-text="'+esc(f.audio)+'">🔊 発音を確認</button></div>';
+ el("scoreNow").textContent="正解 "+score;el("next").textContent=current===questions.length-1?"結果を見る":"次の問題へ";el("next").style.display="block"
+}
+function next(){current++;if(current>=questions.length)showResult();else render()}
+function showResult(){
+ quiz.style.display="none";result.style.display="block";el("finalScore").textContent=score+" / "+questions.length;
+ var r=score/questions.length,msg="まずは拼音と意味を結びつけよう。";
+ if(r===1)msg="全問正解！音の形から意味が取れてる✨";else if(r>=.8)msg="かなりいい感じ！👏";else if(r>=.6)msg="いい感じ。もう一周すると定着しそう😊";else if(r>=.4)msg="答え合わせの漢字も見ながら、もう一周してみよう。";
+ el("message").textContent=msg;window.scrollTo(0,0)
+}
+function showSetup(){result.style.display="none";quiz.style.display="none";setup.style.display="block";updateAvailability();window.scrollTo(0,0)}
+document.addEventListener("click",function(e){var b=e.target.closest(".speak");if(b){e.preventDefault();speakChinese(b.dataset.text||"")}});
+el("start").onclick=function(){startQuiz(false)};el("next").onclick=next;el("again").onclick=function(){startQuiz(true)};el("change").onclick=showSetup;mode.onchange=updateAvailability;level.onchange=updateAvailability;
+try{if(typeof HSK_DATA==="undefined"||!Array.isArray(HSK_DATA))throw new Error("hsk-data.jsが読み込めませんでした。");updateAvailability()}catch(err){el("error").style.display="block";el("error").textContent="初期化エラー："+err.message}
+})();
+</script>
+</body>
+</html>
