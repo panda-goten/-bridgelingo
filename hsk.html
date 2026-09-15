@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3fb">
-<title>BridgeLingo HSK v1.4</title>
+<title>BridgeLingo HSK v1.5</title>
 <style>
 :root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e8f5ec;--warn:#fff4dc;--danger:#fbe8ef}
 *{box-sizing:border-box}
@@ -22,7 +22,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 .dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
 .stat strong{display:block;font-size:20px;color:var(--blue)}
-.review-btn,.pinyin-quiz-btn{width:100%;border:0;border-radius:16px;padding:13px;background:var(--accent);color:#fff;font-size:15px;font-weight:700;margin-bottom:10px;text-decoration:none;text-align:center;display:block}.pinyin-quiz-btn{background:var(--blue)}
+.review-btn,.all-quiz-btn,.pinyin-quiz-btn{width:100%;border:0;border-radius:16px;padding:13px;color:#fff;font-size:15px;font-weight:700;margin-bottom:10px;text-decoration:none;text-align:center;display:block}.review-btn{background:var(--accent)}.all-quiz-btn{background:#8f76b8}.pinyin-quiz-btn{background:var(--blue)}
 .hint{margin:0 2px 12px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:13px;overflow:hidden;box-shadow:0 8px 24px #4f3a6b14}
 .summary{width:100%;padding:16px;text-align:left;background:transparent;border:0}
@@ -80,6 +80,7 @@ main{max-width:760px;margin:auto;padding:14px 12px 50px}
 <div class="stat"><strong id="unsureStat">0</strong><span class="mini">不安</span></div>
 </div>
 <button id="reviewStart" class="review-btn">🎯 不安語から復習クイズ（最大10問）</button>
+<button id="allQuizStart" class="all-quiz-btn">🎲 500語からランダムクイズ（10問）</button>
 <a class="pinyin-quiz-btn" href="pinyin-quiz.html">🔤 拼音だけ → 意味 四択クイズ</a>
 <p class="hint">「覚えた」「不安」はこのiPhoneのブラウザに保存されます。中国語音声は端末の zh-CN 読み上げを使います。500語すべてに日本語訳と英語訳を表示します。上のボタンで拼音順とランダム表示を切り替えられます。🔤クイズでは漢字を隠し、拼音だけから意味を考えられます。例文は既存の一部単語から、今後少しずつ追加していく予定です。</p>
 <div id="list"></div><div id="empty" class="empty">該当する単語がありません。</div>
@@ -171,12 +172,18 @@ document.addEventListener("click",function(e){
 });
 
 /* Review quiz: prioritize unsure; if fewer than 4, supplement with unmarked words. */
-var rq=[],ri=0,rscore=0;
+var rq=[],ri=0,rscore=0,quizScope="unsure";
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
-function startReview(){
- var unsure=HSK_DATA.filter(function(x){return getState(x.id)==="unsure"});
- if(!unsure.length){alert("まだ「不安」にした単語がありません。単語カードで「？ 不安」を付けてみてね。");return}
- rq=shuffle(unsure).slice(0,10);ri=0;rscore=0;
+function startReview(scope){
+ quizScope=scope||"unsure";
+ var pool;
+ if(quizScope==="all"){
+   pool=HSK_DATA.slice();
+ }else{
+   pool=HSK_DATA.filter(function(x){return getState(x.id)==="unsure"});
+   if(!pool.length){alert("まだ「不安」にした単語がありません。単語カードで「？ 不安」を付けてみてね。");return}
+ }
+ rq=shuffle(pool).slice(0,10);ri=0;rscore=0;
  document.getElementById("reviewModal").classList.add("show");renderReview()
 }
 function distractors(correct){
@@ -186,11 +193,13 @@ function distractors(correct){
 function renderReview(){
  var area=document.getElementById("quizArea");
  if(ri>=rq.length){
-  area.innerHTML='<div class="qcard result"><div class="mini">RESULT</div><strong>'+rscore+' / '+rq.length+'</strong><p>不安語の復習、おつかれさま！</p><button id="finishReview" class="next" style="display:block">単語帳へ戻る</button></div>';
+  var resultMsg=quizScope==="all"?"500語からのランダムクイズ、おつかれさま！":"不安語の復習、おつかれさま！";
+  area.innerHTML='<div class="qcard result"><div class="mini">RESULT</div><strong>'+rscore+' / '+rq.length+'</strong><p>'+resultMsg+'</p><button id="finishReview" class="next" style="display:block">単語帳へ戻る</button></div>';
   document.getElementById("qProgress").textContent="";
   document.getElementById("finishReview").onclick=closeReview;return
  }
  var x=rq[ri],opts=shuffle([x].concat(distractors(x)));
+ document.querySelector("#reviewModal .quizhead strong").textContent=quizScope==="all"?"500語ランダムクイズ":"復習クイズ";
  document.getElementById("qProgress").textContent=(ri+1)+" / "+rq.length+"　正解 "+rscore;
  area.innerHTML='<div class="qcard"><div class="mini">この単語の拼音はどれ？</div><div class="qword">'+esc(x.word)+'</div><div class="qpinyin">🔊を押して確認もできます</div><button class="speak" data-text="'+esc(x.word)+'">🔊 発音</button><div class="choices">'+
  opts.map(function(o){return '<button class="choice" data-id="'+o.id+'">'+esc(o.pinyin)+'</button>'}).join("")+
@@ -205,7 +214,9 @@ function renderReview(){
  area.dataset.answered="0"
 }
 function closeReview(){window.speechSynthesis&&window.speechSynthesis.cancel();document.getElementById("reviewModal").classList.remove("show")}
-document.getElementById("reviewStart").onclick=startReview;document.getElementById("closeQuiz").onclick=closeReview;
+document.getElementById("reviewStart").onclick=function(){startReview("unsure")};
+document.getElementById("allQuizStart").onclick=function(){startReview("all")};
+document.getElementById("closeQuiz").onclick=closeReview;
 
 render();
 })();
