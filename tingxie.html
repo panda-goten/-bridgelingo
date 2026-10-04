@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3fb">
+<title>BridgeLingo 听写</title>
+<style>
+:root{--bg:#f7f3fb;--card:#fff;--text:#2f2938;--muted:#786f86;--line:#ddd4ea;--accent:#7b5aa6;--soft:#eee7f6;--blue:#6e57d2;--ok:#e8f5ec;--danger:#f8e9ee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:20;padding:max(16px,env(safe-area-inset-top)) 14px 12px;background:#f7f3fbf3;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+h1{margin:0;font-size:28px}.sub,.mini,.note,.count{color:var(--muted);font-size:12px}
+.nav{display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:2px}.nav a{text-decoration:none;color:var(--text);background:var(--soft);padding:8px 12px;border-radius:999px;font-size:13px;white-space:nowrap}.nav a.active{background:var(--accent);color:#fff}
+main{max-width:720px;margin:auto;padding:14px 12px 50px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;border:0;border-radius:999px;padding:11px 10px;background:var(--soft);font:inherit;color:var(--text);font-weight:700}.tab.on{background:var(--accent);color:#fff}
+.panel,.study-card,.list-card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 24px #4f3a6b14}
+.panel{padding:16px}.field{margin-bottom:13px}label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 6px 2px}
+textarea,input{width:100%;border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px 13px;font:inherit;color:var(--text)}textarea{min-height:92px;resize:vertical;line-height:1.55}
+button{font:inherit;color:var(--text);border:0;border-radius:14px;padding:12px;background:var(--soft)}
+.primary{width:100%;background:var(--accent);color:#fff;font-weight:700}.secondary{width:100%;background:var(--blue);color:#fff;font-weight:700}.ghost{width:100%}.danger{background:var(--danger)}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}.stat strong{display:block;color:var(--blue);font-size:23px}.stat span{font-size:11px;color:var(--muted)}
+.section{display:none}.section.on{display:block}
+.study-card{padding:18px;text-align:center}.prompt{font-size:13px;color:var(--muted);margin-bottom:14px}.speaker{font-size:42px;margin:8px 0 14px}.study-actions{display:grid;gap:10px}
+.answer{display:none;margin-top:14px;text-align:left;padding:15px;border:1px solid var(--line);border-radius:16px;background:#fcf9ff}.hanzi{font-size:23px;font-weight:800;line-height:1.55;color:var(--blue)}.pinyin{font-size:15px;line-height:1.6;color:var(--accent);margin-top:6px}
+.done-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.done{background:var(--accent);color:#fff;font-weight:700}.again{background:var(--soft)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+.list{display:grid;gap:10px;margin-top:12px}.list-card{padding:14px}.list-hanzi{font-weight:700;font-size:17px;line-height:1.5}.list-pinyin{color:var(--muted);font-size:13px;line-height:1.5;margin-top:4px}.list-actions{display:flex;gap:7px;margin-top:10px}.small{padding:8px 10px;font-size:12px}
+.saved{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--ok);font-size:13px}
+details{margin-top:14px}summary{cursor:pointer;color:var(--accent);font-weight:700}
+.note{line-height:1.6;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>🎧 BridgeLingo 听写</h1>
+<div class="sub">聞く → 書く → 答え合わせ。自分専用の短文デッキ。</div>
+<div class="nav"><a href="index.html">語学図鑑</a><a href="hsk.html">HSK単語帳</a><a href="idioms.html">三字・四字</a><a href="quiz.html">クイズ</a><a class="active" href="tingxie.html">听写</a><a href="appendix.html">付録</a></div>
+</header>
+
+<main>
+<div class="tabs">
+<button class="tab on" data-tab="study">再生・学習</button>
+<button class="tab" data-tab="register">文章を登録</button>
+<button class="tab" data-tab="learned">覚えた</button>
+</div>
+
+<div class="stats">
+<div class="stat"><strong id="statTotal">0</strong><span>登録</span></div>
+<div class="stat"><strong id="statActive">0</strong><span>学習中</span></div>
+<div class="stat"><strong id="statLearned">0</strong><span>覚えた</span></div>
+</div>
+
+<section id="study" class="section on">
+<div class="study-card">
+<div class="prompt">ランダムに1文を再生します。聞こえた文を書いてみよう。</div>
+<div class="speaker">🔊</div>
+<div class="study-actions">
+<button id="playRandom" class="secondary" type="button">ランダムに再生</button>
+<button id="replay" class="ghost" type="button" disabled>もう一度再生</button>
+<button id="showAnswer" class="primary" type="button" disabled>答え合わせ</button>
+</div>
+<div id="answer" class="answer"></div>
+<div id="doneRow" class="done-row" style="display:none">
+<button id="keepLearning" class="again" type="button">まだ練習する</button>
+<button id="markLearned" class="done" type="button">✓ 覚えた！</button>
+</div>
+<div id="studyEmpty" class="empty" style="display:none">学習中の文章がありません。まず文章を登録してね。</div>
+</div>
+</section>
+
+<section id="register" class="section">
+<div class="panel">
+<div class="field"><label for="chinese">中国語の文章</label><textarea id="chinese" lang="zh-CN" placeholder="例：我差点儿忘了带伞。"></textarea></div>
+<div class="field"><label for="pinyin">拼音</label><textarea id="pinyin" placeholder="例：Wǒ chàdiǎnr wàng le dài sǎn."></textarea></div>
+<button id="save" class="primary" type="button">この文章を登録</button>
+<div id="saved" class="saved">登録しました ✓</div>
+<div class="note">データはこのiPhoneのブラウザ内に保存されます。中国語音声は端末の zh-CN 読み上げを使います。</div>
+<details>
+<summary>学習中の登録文を見る</summary>
+<div id="activeList" class="list"></div>
+</details>
+</div>
+</section>
+
+<section id="learned" class="section">
+<div class="panel">
+<div class="note">「覚えた！」にした文章です。通常のランダム再生には出ません。</div>
+<div id="learnedList" class="list"></div>
+</div>
+</section>
+</main>
+
+<script>
+(function(){
+"use strict";
+var KEY="bridgelingo_tingxie_v1";
+var items=[],currentId=null;
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]})}
+function load(){try{items=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(items))items=[]}catch(e){items=[]}}
+function saveAll(){localStorage.setItem(KEY,JSON.stringify(items));renderStats();renderLists()}
+function activeItems(){return items.filter(function(x){return !x.learned})}
+function learnedItems(){return items.filter(function(x){return !!x.learned})}
+function uid(){return "tx-"+Date.now()+"-"+Math.random().toString(36).slice(2,8)}
+function speak(text){
+ if(!text)return;
+ if(!("speechSynthesis" in window)){alert("このブラウザは音声読み上げに対応していません。");return}
+ speechSynthesis.cancel();
+ var u=new SpeechSynthesisUtterance(text);u.lang="zh-CN";u.rate=.82;
+ var voices=speechSynthesis.getVoices();
+ var v=voices.find(function(x){return /^zh[-_]CN/i.test(x.lang)})||voices.find(function(x){return /^zh/i.test(x.lang)});
+ if(v)u.voice=v;speechSynthesis.speak(u)
+}
+function renderStats(){
+ $("statTotal").textContent=items.length;
+ $("statActive").textContent=activeItems().length;
+ $("statLearned").textContent=learnedItems().length
+}
+function listCard(x,learned){
+ return '<div class="list-card"><div class="list-hanzi">'+esc(x.chinese)+'</div><div class="list-pinyin">'+esc(x.pinyin)+'</div><div class="list-actions">'+
+ '<button class="small speak-item" data-id="'+esc(x.id)+'">🔊</button>'+
+ (learned?'<button class="small restore-item" data-id="'+esc(x.id)+'">学習中に戻す</button>':'')+
+ '<button class="small danger delete-item" data-id="'+esc(x.id)+'">削除</button></div></div>'
+}
+function renderLists(){
+ var a=activeItems(),l=learnedItems();
+ $("activeList").innerHTML=a.length?a.map(function(x){return listCard(x,false)}).join(""):'<div class="empty">まだありません。</div>';
+ $("learnedList").innerHTML=l.length?l.map(function(x){return listCard(x,true)}).join(""):'<div class="empty">まだ「覚えた」文章はありません。</div>';
+}
+function resetStudy(){
+ currentId=null;$("answer").style.display="none";$("answer").innerHTML="";$("doneRow").style.display="none";
+ $("replay").disabled=true;$("showAnswer").disabled=true
+}
+function pickRandom(){
+ var a=activeItems();
+ if(!a.length){resetStudy();$("studyEmpty").style.display="block";return}
+ $("studyEmpty").style.display="none";
+ var candidates=a.filter(function(x){return x.id!==currentId});
+ var pool=candidates.length?candidates:a;
+ var x=pool[Math.floor(Math.random()*pool.length)];
+ currentId=x.id;$("answer").style.display="none";$("answer").innerHTML="";$("doneRow").style.display="none";
+ $("replay").disabled=false;$("showAnswer").disabled=false;speak(x.chinese)
+}
+function current(){return items.find(function(x){return x.id===currentId})}
+$("playRandom").onclick=pickRandom;
+$("replay").onclick=function(){var x=current();if(x)speak(x.chinese)};
+$("showAnswer").onclick=function(){
+ var x=current();if(!x)return;
+ $("answer").innerHTML='<div class="mini">答え</div><div class="hanzi" lang="zh-CN">'+esc(x.chinese)+'</div><div class="pinyin">'+esc(x.pinyin)+'</div>';
+ $("answer").style.display="block";$("doneRow").style.display="grid"
+};
+$("keepLearning").onclick=pickRandom;
+$("markLearned").onclick=function(){
+ var x=current();if(!x)return;x.learned=true;x.learnedAt=Date.now();saveAll();pickRandom()
+};
+$("save").onclick=function(){
+ var chinese=$("chinese").value.trim(),pinyin=$("pinyin").value.trim();
+ if(!chinese||!pinyin){alert("中国語の文章と拼音を両方入力してください。");return}
+ if(items.some(function(x){return x.chinese===chinese})){alert("同じ中国語文がすでに登録されています。");return}
+ items.unshift({id:uid(),chinese:chinese,pinyin:pinyin,learned:false,createdAt:Date.now()});
+ saveAll();$("chinese").value="";$("pinyin").value="";
+ $("saved").style.display="block";setTimeout(function(){$("saved").style.display="none"},1600)
+};
+document.addEventListener("click",function(e){
+ var b=e.target.closest(".speak-item,.restore-item,.delete-item");if(!b)return;
+ var id=b.dataset.id,x=items.find(function(i){return i.id===id});if(!x)return;
+ if(b.classList.contains("speak-item")){speak(x.chinese);return}
+ if(b.classList.contains("restore-item")){x.learned=false;delete x.learnedAt;saveAll();return}
+ if(b.classList.contains("delete-item")){
+   if(confirm("この文章を削除しますか？")){items=items.filter(function(i){return i.id!==id});if(currentId===id)resetStudy();saveAll()}
+ }
+});
+document.querySelectorAll(".tab").forEach(function(b){
+ b.onclick=function(){
+   document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("on")});
+   document.querySelectorAll(".section").forEach(function(x){x.classList.remove("on")});
+   b.classList.add("on");$(b.dataset.tab).classList.add("on")
+ }
+});
+load();renderStats();renderLists();
+})();
+</script>
+</body>
+</html>
